@@ -1,0 +1,75 @@
+{% extends "pro/pro_base.html" %}
+
+{% block content %}
+<style>
+    .work-card { position: relative; border-radius: 16px; overflow: hidden; background: #f8f9fa; aspect-ratio: 1/1; }
+    .work-card img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+    .work-card:hover img { transform: scale(1.08); }
+    .work-overlay { 
+        position: absolute; inset: 0; background: rgba(0,0,0,0.4); 
+        opacity: 0; transition: 0.3s; display: flex; align-items: center; justify-content: center;
+    }
+    .work-card:hover .work-overlay { opacity: 1; }
+    
+    .upload-zone {
+        border: 2px dashed #dee2e6;
+        border-radius: 16px;
+        padding: 40px;
+        text-align: center;
+        transition: 0.3s;
+        cursor: pointer;
+        background: #fff;
+    }
+    .upload-zone:hover { border-color: var(--primary-gold); background: #fffdf5; }
+</style>
+
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-lg-9 col-xl-10">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">Portfolio Gallery</h2>
+                    <p class="text-secondary mb-0">Manage the works displayed on your public profile.</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <form action="{{ url_for('pro.portfolio') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
+                        <div class="upload-zone" onclick="document.getElementById('fileInput').click();">
+                            <i class="bi bi-cloud-arrow-up fs-1 text-warning"></i>
+                            <h5 class="fw-bold mt-3">Upload New Projects</h5>
+                            <p class="text-secondary small">Click to browse or drag images here (JPG, PNG, WebP)</p>
+                            <input type="file" name="gallery" id="fileInput" multiple hidden accept="image/*" onchange="document.getElementById('uploadForm').submit();">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                {% for img in current_user.gallery %}
+                <div class="col-6 col-md-4 col-xl-3">
+                    <div class="work-card shadow-sm">
+                        <img src="{{ url_for('static', filename='uploads/' + img.filename) }}" alt="Portfolio piece">
+                        <div class="work-overlay">
+                            <form action="{{ url_for('pro.delete_gallery_image', image_id=img.id) }}" method="POST" onsubmit="return confirm('Delete this work?');">
+                                <button type="submit" class="btn btn-danger rounded-pill px-3 fw-bold shadow">
+                                    <i class="bi bi-trash me-1"></i> Remove
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="text-center py-5 bg-light rounded-4">
+                        <i class="bi bi-image-alt fs-1 text-secondary opacity-25"></i>
+                        <p class="text-secondary mt-3">No images uploaded yet. Start by adding your best work!</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

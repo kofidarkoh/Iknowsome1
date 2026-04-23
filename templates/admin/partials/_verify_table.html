@@ -1,0 +1,88 @@
+<style>
+    .status-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+    .status-icon.verified { background: #f0fff4; color: #38a169; border: 1px solid #c6f6d5; }
+    .status-icon.unverified { background: #fff5f5; color: #e53e3e; border: 1px solid #fed7d7; }
+
+    .action-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 10px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: 0.2s;
+    }
+    .btn-quick-approve { background: #1a1a1a; color: white; }
+    .btn-quick-approve:hover { background: #000; transform: scale(1.1); }
+    .btn-manage { background: #f8f9fa; color: #4a5568; border: 1px solid #e2e8f0; }
+    .btn-manage:hover { background: #edf2f7; color: #2d3748; }
+
+    tr.htmx-swapping { opacity: 0; transform: translateX(20px); transition: all 400ms; }
+</style>
+
+{% for user in unverified_users %}
+<tr id="row-{{ user.id }}" class="border-bottom">
+    <td class="ps-4 py-3">
+        <div class="d-flex align-items-center">
+            <div class="avatar-sm me-3 bg-light rounded-circle d-flex align-items-center justify-content-center fw-bold text-muted" style="width: 38px; height: 38px;">
+                {{ user.username[0]|upper }}
+            </div>
+            <div>
+                <div class="fw-bold text-dark text-xs text-uppercase">{{ user.username }}</div>
+                <div class="text-xs text-muted">{{ user.email }}</div>
+            </div>
+        </div>
+    </td>
+    
+    <td>
+        <div class="d-flex gap-2">
+            <div class="status-icon {% if user.email_verified %}verified{% else %}unverified{% endif %}" title="Email">
+                <i class="bi bi-envelope-fill"></i>
+            </div>
+            <div class="status-icon {% if user.phone_verified %}verified{% else %}unverified{% endif %}" title="Phone">
+                <i class="bi bi-telephone-fill"></i>
+            </div>
+            <div class="status-icon {% if user.kyc_status == 'verified' %}verified{% else %}unverified{% endif %}" title="KYC">
+                <i class="bi bi-person-badge-fill"></i>
+            </div>
+        </div>
+    </td>
+
+    <td>
+        <div class="status-icon {% if user.full_verified %}verified{% else %}unverified{% endif %}" title="Identity Verified">
+            <i class="bi bi-shield-check"></i>
+        </div>
+    </td>
+
+    <td class="text-center">
+        <div class="d-flex justify-content-center gap-2">
+            <button class="action-btn btn-manage" 
+                    hx-get="{{ url_for('admin.edit_user_verification', user_id=user.id) }}"
+                    hx-target="#row-{{ user.id }}"
+                    hx-swap="outerHTML"
+                    title="Manage Steps">
+                <i class="bi bi-pencil-square"></i>
+            </button>
+            
+            <button class="action-btn btn-quick-approve"
+                    hx-post="{{ url_for('admin.quick_verify', user_id=user.id) }}"
+                    hx-target="#row-{{ user.id }}"
+                    hx-swap="outerHTML swap:400ms"
+                    hx-confirm="Fully verify {{ user.username }}?"
+                    title="Quick Approve All">
+                <i class="bi bi-check-lg"></i>
+            </button>
+        </div>
+    </td>
+</tr>
+{% endfor %}

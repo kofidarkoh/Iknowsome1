@@ -1,0 +1,94 @@
+{% extends "pro/pro_base.html" %}
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        {% include '_message.html' %}
+        <div class="col-lg-9 col-xl-10">
+            <div class="mb-4">
+                <h2 class="fw-bold mb-1">Business Profile</h2>
+                <p class="text-secondary">This information is visible to potential customers.</p>
+            </div>
+
+            <form action="{{ url_for('pro.profile_setup') }}" method="POST" enctype="multipart/form-data">
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <div class="card border-0 shadow-sm rounded-4 mb-4">
+                            <div class="card-body p-4">
+                                <h5 class="fw-bold mb-4">Service Details</h5>
+                                
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold text-secondary">Service Category</label>
+                                        <select name="category" class="form-select border-0 bg-light py-2">
+                                            {% for cat in categories %}
+                                                <option value="{{ cat.name }}" {% if current_user.category.name == cat.name %}selected{% endif %}>
+                                                    {{ cat.name }}
+                                                </option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label small fw-bold text-secondary">Starting Rate (GHS)</label>
+                                        <input type="number" name="base_rate" class="form-control border-0 bg-light py-2" 
+                                               value="{{ current_user.base_rate }}" placeholder="e.g. 50">
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label small fw-bold text-secondary">Business Bio / Description</label>
+                                        <textarea name="bio" class="form-control border-0 bg-light py-2" rows="5" 
+                                                  placeholder="Tell customers what you do best...">{{ current_user.bio }}</textarea>
+                                        <div class="form-text">Pro Tip: Mention your experience and specific services.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card border-0 shadow-sm rounded-4">
+                            <div class="card-body p-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="fw-bold mb-0">Work Gallery</h5>
+                                    <a href="#galleryUpload" class="btn btn-sm btn-outline-warning rounded-pill px-3">Manage Gallery</a>
+                                </div>
+                                <p class="small text-secondary mb-4">Visual proof of your previous work.</p>
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm rounded-4 mb-4">
+                            <div class="card-body p-4 text-center">
+                                <div class="position-relative d-inline-block mb-3">
+                                    <img src="{% if current_user.profile_pic %}{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}{% else %}https://ui-avatars.com/api/?name={{ current_user.username }}&background=fbbf24&color=000&size=128{% endif %}" 
+                                         class="rounded-circle shadow-sm object-fit-cover" width="120" height="120">
+                                    <label for="picUpload" class="position-absolute bottom-0 end-0 bg-warning border border-3 border-white rounded-circle p-2 shadow-sm" style="cursor: pointer;">
+                                        <i class="bi bi-camera-fill text-dark"></i>
+                                    </label>
+                                    <input type="file" name="profile_pic" id="picUpload" hidden accept="image/*">
+                                </div>
+                                <h6 class="fw-bold mb-1">{{ current_user.username }}</h6>
+                                <p class="small text-secondary mb-4">{{ current_user.email }}</p>
+                                
+                                <hr class="my-4 opacity-50">
+
+                                <div class="text-start">
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-secondary">Location</label>
+                                        <input type="text" name="location" class="form-control border-0 bg-light py-2" 
+                                               value="{{ current_user.location }}" placeholder="e.g. Kumasi, Ghana">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-secondary">Contact Phone</label>
+                                        <input type="text" name="phone" class="form-control border-0 bg-light py-2" 
+                                               value="{{ current_user.phone }}" placeholder="+233 ...">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-warning w-100 rounded-pill fw-bold mt-2 shadow-sm">Save Business Info</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

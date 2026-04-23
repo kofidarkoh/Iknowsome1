@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .wallet-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #374151 100%);
+        border-radius: 24px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .wallet-card::after {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    .txn-icon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3 class="fw-bold mb-0">My Wallet</h3>
+                <button class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#depositModal">
+                    <i class="bi bi-plus-lg me-1"></i> Add Funds
+                </button>
+            </div>
+
+            <div class="card wallet-card border-0 shadow-lg mb-5">
+                <div class="card-body p-5">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <p class="text-uppercase small fw-bold opacity-50 mb-1">Total Balance</p>
+                            <h1 class="display-5 fw-bold mb-0">₵{{ "{:,.2f}".format(current_user.balance) }}</h1>
+                        </div>
+                        <i class="bi bi-cpu fs-1 opacity-25"></i>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="me-4">
+                            <p class="x-small text-uppercase opacity-50 mb-0">Currency</p>
+                            <span class="small fw-bold">GHS / Cedis</span>
+                        </div>
+                        <div>
+                            <p class="x-small text-uppercase opacity-50 mb-0">Status</p>
+                            <span class="small fw-bold text-success"><i class="bi bi-shield-check me-1"></i>Secure</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="fw-bold mb-3 px-1">Recent Activity</h5>
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="list-group list-group-flush">
+                    {% for txn in transactions %}
+                    <div class="list-group-item p-3 border-0 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="txn-icon me-3 {% if txn.amount > 0 %}bg-success-subtle text-success{% else %}bg-light text-dark{% endif %}">
+                                    {% if txn.type == 'deposit' %}
+                                        <i class="bi bi-arrow-down-left"></i>
+                                    {% elif txn.type == 'payment' %}
+                                        <i class="bi bi-bag-check"></i>
+                                    {% else %}
+                                        <i class="bi bi-arrow-repeat"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold small">{{ txn.type|capitalize }}</h6>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ txn.timestamp.strftime('%d %b, %I:%M %p') }}</small>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold {% if txn.amount > 0 %}text-success{% else %}text-dark{% endif %}">
+                                    {% if txn.amount > 0 %}+{% endif %}₵{{ "{:,.2f}".format(txn.amount) }}
+                                </span>
+                                <div class="x-small text-muted" style="font-size: 0.6rem;">Completed</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-5 text-center">
+                        <i class="bi bi-wallet2 text-muted fs-1 mb-3 d-block"></i>
+                        <p class="text-muted small">No transactions found in your history.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="depositModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="bg-warning-subtle rounded-circle d-inline-block p-3 mb-3">
+                        <i class="bi bi-phone-vibrate text-warning fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold">Manual Deposit</h5>
+                    <p class="text-muted small">Please send funds to the number below. Your wallet will be credited once confirmed.</p>
+                </div>
+
+                <div class="bg-light rounded-4 p-3 mb-4">
+                    <div class="mb-3">
+                        <label class="x-small text-muted fw-bold d-block">MTN MOMO NUMBER</label>
+                        <span class="fw-bold text-dark fs-5">024 123 4567</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="x-small text-muted fw-bold d-block">ACCOUNT NAME</label>
+                        <span class="fw-bold text-dark">IKnowSome1 Limited</span>
+                    </div>
+                    <div>
+                        <label class="x-small text-muted fw-bold d-block">REFERENCE (IMPORTANT)</label>
+                        <span class="badge bg-dark rounded-pill">{{ current_user.username }}</span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-100 rounded-pill fw-bold" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning w-100 rounded-pill fw-bold" data-bs-dismiss="modal">I've Sent It</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

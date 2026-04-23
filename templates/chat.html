@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .chat-container { max-width: 800px; margin: 0 auto; }
+    .chat-window { 
+        height: 500px; 
+        overflow-y: auto; 
+        scrollbar-width: thin;
+        background: url('https://www.transparenttextures.com/patterns/cubes.png'); /* Subtle texture */
+    }
+    .message-bubble {
+        max-width: 75%;
+        border-radius: 1.2rem;
+        padding: 12px 18px;
+        position: relative;
+        font-size: 0.95rem;
+    }
+    .msg-sent { 
+        background-color: var(--primary-gold); 
+        color: #000; 
+        border-bottom-right-radius: 4px; 
+    }
+    .msg-received { 
+        background-color: var(--bs-tertiary-bg); 
+        border-bottom-left-radius: 4px; 
+    }
+    .status-bar {
+        border-bottom: 2px solid var(--primary-gold);
+        background: rgba(var(--bs-tertiary-bg-rgb), 0.5);
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+<div class="container py-4 chat-container">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-3">
+    <div class="card-body p-3 d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            {% set partner = job.pro if current_user.role == 'customer' else job.customer %}
+            <div class="position-relative me-3">
+                <img src="{{ url_for('static', filename='uploads/' + partner.profile_pic) }}" 
+                     class="rounded-circle border border-2 border-warning shadow-sm"
+                     style="width: 45px; height: 45px; object-fit: cover;"
+                     onerror="this.src='https://ui-avatars.com/api/?name={{ partner.username }}&background=fbbf24&color=fff'">
+                
+                {% if partner.is_online() %}
+                <span class="position-absolute bottom-0 end-0 bg-success rounded-circle border border-2 border-white" 
+                      style="width: 12px; height: 12px;" title="Online"></span>
+                {% endif %}
+            </div>
+
+            <div>
+                <h6 class="fw-bold mb-0">{{ partner.username }}</h6>
+                <div class="d-flex align-items-center">
+                    {% if partner.is_online() %}
+                        <small class="text-success fw-semibold" style="font-size: 0.75rem;">Online</small>
+                    {% else %}
+                        <small class="text-secondary" style="font-size: 0.75rem;">
+                            Last seen {{ partner.last_active.strftime('%I:%M %p') }}
+                        </small>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-end d-none d-sm-block">
+            <span class="badge bg-body-secondary border text-secondary px-3 py-2 rounded-pill" style="font-size: 0.7rem;">
+                REF: #JOB-{{ job.id }}
+            </span>
+        </div>
+    </div>
+    
+    </div>
+
+    <div class="chat-window p-4 border rounded-4 bg-body mb-3 shadow-inner" id="chatBox">
+        {% for msg in messages %}
+            <div class="d-flex mb-4 {% if msg.sender == current_user %}justify-content-end{% else %}justify-content-start{% endif %}">
+                <div class="message-bubble shadow-sm {% if msg.sender == current_user %}msg-sent{% else %}msg-received{% endif %}">
+                    {{ msg.content }}
+                    <div class="d-block small opacity-50 mt-1" style="font-size: 0.65rem; text-align: right;">
+                        {{ msg.created_at.strftime('%H:%M') }}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form action="{{ url_for('chat.send_message', job_id=job.id) }}" method="POST">
+        <div class="input-group input-group-lg shadow-sm">
+            <input type="text" name="content" class="form-control border-0 bg-body-tertiary rounded-start-pill ps-4" 
+                   placeholder="Write a message..." required autocomplete="off">
+            <button class="btn btn-warning rounded-end-pill px-4" type="submit">
+                <i class="bi bi-send-fill text-dark"></i>
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Automatically scroll to bottom of chat
+    const chatBox = document.getElementById('chatBox');
+    chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

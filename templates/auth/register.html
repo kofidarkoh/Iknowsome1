@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Join IknowSomeOne{% endblock %}
+
+{% block content %}
+<style>
+    /* Premium Input Styling */
+    .input-group-text {
+        background-color: #f8f9fa !important;
+        border: 1px solid #e5e7eb;
+        color: #9ca3af;
+        padding-left: 1.25rem;
+    }
+    .form-control {
+        border: 1px solid #e5e7eb;
+        background-color: #f8f9fa !important;
+    }
+    .form-control:focus {
+        background-color: #fff !important;
+        border-color: #fbbf24;
+        box-shadow: none;
+    }
+    .input-group:focus-within .input-group-text {
+        background-color: #fff !important;
+        border-color: #fbbf24;
+        color: #fbbf24;
+    }
+
+    /* Side Branding Section (Visible only on Large) */
+    .register-sidebar {
+        background: linear-gradient(135deg, #0b0b0b 0%, #222 100%);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 60px;
+    }
+
+    /* Fixed height for large screens to look like a desktop app */
+    @media (min-width: 992px) {
+        .auth-card {
+            min-height: 650px;
+        }
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center align-items-center" style="min-height: 85vh;">
+        <div class="col-11 col-md-9 col-lg-10 col-xl-9" data-aos="fade-up">
+            
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden auth-card">
+                <div class="row g-0 h-100">
+                    
+                    <div class="col-lg-5 d-none d-lg-flex register-sidebar">
+                        <div class="mb-4">
+                            <h2 class="display-5 fw-bold text-warning">Start your <br>journey.</h2>
+                            <p class="text-secondary mt-3">Join the largest network of creative and strategic professionals in Ghana.</p>
+                        </div>
+                        <ul class="list-unstyled mt-4">
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-warning me-3"></i> Secure Workspace
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-warning me-3"></i> Direct Client Access
+                            </li>
+                            <li class="mb-3 d-flex align-items-center">
+                                <i class="bi bi-check-circle-fill text-warning me-3"></i> Zero Hidden Fees
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-7 bg-white p-4 p-md-5">
+                        <div class="mb-4 d-lg-none text-center">
+                            <h2 class="fw-bold">Create Account</h2>
+                        </div>
+                        
+                        <div class="mb-5 d-none d-lg-block">
+                            <h4 class="fw-bold mb-1">Account Details</h4>
+                            <p class="text-muted small">Fill in the information to get started.</p>
+                        </div>
+                        {% include '_message.html' %}
+                        <form action="{{ url_for('auth.register') }}" method="POST">
+                            <div class="row g-3">
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold text-uppercase text-secondary">Full / Business Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0 rounded-start-3"><i class="bi bi-person"></i></span>
+                                        <input type="text" name="username" class="form-control border-start-0 rounded-end-3 py-3" placeholder="Kofi Arhin" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold text-uppercase text-secondary">Email Address</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0 rounded-start-3"><i class="bi bi-envelope"></i></span>
+                                        <input type="email" name="email" class="form-control border-start-0 rounded-end-3 py-3" placeholder="name@example.com" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <label class="form-label small fw-bold text-uppercase text-secondary">I want to...</label>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <input type="radio" class="btn-check" name="role" id="role_customer" value="customer" checked>
+                                            <label class="btn btn-outline-warning w-100 py-3 rounded-3" for="role_customer">
+                                                <i class="bi bi-search d-block mb-1"></i> <span class="small fw-bold">Hire Pros</span>
+                                            </label>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="radio" class="btn-check" name="role" id="role_pro" value="pro">
+                                            <label class="btn btn-outline-warning w-100 py-3 rounded-3" for="role_pro">
+                                                <i class="bi bi-briefcase d-block mb-1"></i> <span class="small fw-bold">Work as Pro</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-4">
+                                    <label class="form-label small fw-bold text-uppercase text-secondary">Password</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text border-end-0 rounded-start-3"><i class="bi bi-lock"></i></span>
+                                        <input type="password" name="password" class="form-control border-start-0 rounded-end-3 py-3" placeholder="••••••••" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 mt-5">
+                                    <button type="submit" class="btn btn-warning w-100 fw-bold py-3 rounded-pill shadow-sm">
+                                        Create Workspace <i class="bi bi-arrow-right ms-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div class="text-center mt-4">
+                            <p class="text-secondary small">Already have an account? 
+                                <a href="{{ url_for('auth.login') }}" class="text-warning fw-bold text-decoration-none">Log in</a>
+                            </p>
+                        </div>
+                    </div>
+                </div> </div> </div>
+    </div>
+</div>
+{% endblock %}

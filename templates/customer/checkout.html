@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('customer.explore') }}">Explore</a></li>
+                    <li class="breadcrumb-item active">Hire {{ pro.username }}</li>
+                </ol>
+            </nav>
+            
+            <div class="card shadow-lg border-0 bg-body-tertiary">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold mb-1">Request a Quote</h3>
+                    <p class="text-secondary small mb-4">Send details to {{ pro.username }} to start a conversation.</p>
+                    
+                    {# --- VERIFICATION GUARD --- #}
+                    {% if not current_user.is_verified %}
+                        <div class="text-center py-4">
+                            <div class="mb-3">
+                                <i class="bi bi-envelope-exclamation text-warning" style="font-size: 3rem;"></i>
+                            </div>
+                            <h5 class="fw-bold">Email Verification Required</h5>
+                            <p class="text-secondary small">You need to verify your email address before you can message professionals or request quotes.</p>
+                            <a href="{{ url_for('customer.dashboard') }}" class="btn btn-dark rounded-pill px-4 btn-sm">
+                                Go to Dashboard
+                            </a>
+                        </div>
+                    {% else %}
+                        {# --- ACTUAL FORM --- #}
+                        <form method="POST">
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">What do you need help with?</label>
+                                <input type="text" name="title" class="form-control shadow-none" placeholder="e.g. Branding for new coffee shop" required>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold">Provide more details (be specific)</label>
+                                <textarea name="description" class="form-control shadow-none" rows="5" placeholder="Include any specific requirements or timelines..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100 fw-bold py-2 shadow-sm">
+                                <i class="bi bi-send-check me-2"></i> Send Message
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

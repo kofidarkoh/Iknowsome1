@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+{% block title %}Account Settings | IknowSomeOne{% endblock %}
+{% block content %}
+<div class="container py-5">
+    {% include '_message.html' %}
+    <div class="row g-4">
+        <!-- Left Column - Verification Section -->
+        <div class="col-lg-5">
+            <!-- Header -->
+            <div class="mb-4">
+                <h2 class="fw-bold mb-2">Account Settings</h2>
+                <p class="text-muted">Manage your security & verification</p>
+            </div>
+            <!-- Email Verification Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start justify-content-between flex-column flex-md-row gap-3">
+                        <div>
+                            <div class="bg-warning bg-opacity-10 rounded-circle p-2 d-inline-flex mb-3">
+                                <i class="bi bi-envelope-check fs-5 text-warning"></i>
+                            </div>
+                            <h6 class="fw-semibold mb-1">Email Verification</h6>
+                            <p class="small text-muted mb-2">Secure your account with email verification</p>
+                            <p class="mb-0 fw-semibold small">
+                                {% if current_user.email_verified %}
+                                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Verified</span>
+                                {% else %}
+                                <span class="text-warning"><i class="bi bi-exclamation-circle-fill me-1"></i> Unverified</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            {% if not current_user.email_verified %}
+                            {% set otp_key = 'otp_data_' ~ current_user.id|string %}
+                            {% if session.get(otp_key) %}
+                            <form action="{{ url_for('customer.settings') }}" method="POST" class="d-flex gap-2">
+                                <input type="hidden" name="action" value="verify_otp">
+                                <input type="text" name="otp_input" class="form-control form-control-sm rounded-pill bg-light border-0" placeholder="6-digit code" required style="width: 130px;">
+                                <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">Verify</button>
+                            </form>
+                            {% else %}
+                            <form action="{{ url_for('customer.settings') }}" method="POST">
+                                <input type="hidden" name="action" value="send_otp">
+                                <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill px-3">Verify Now</button>
+                            </form>
+                            {% endif %}
+                            {% else %}
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">
+                                <i class="bi bi-shield-check me-1"></i> Verified
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start justify-content-between flex-column flex-md-row gap-3">
+                        <div>
+                            <div class="bg-info bg-opacity-10 rounded-circle p-2 d-inline-flex mb-3">
+                                <i class="bi bi-phone fs-5 text-info"></i>
+                            </div>
+                            <h6 class="fw-semibold mb-1">Phone Verification</h6>
+                            <p class="small text-muted mb-2">Required for Mobile Money (MoMo) payments</p>
+                            <p class="mb-0 fw-semibold small">
+                                {% if current_user.phone_verified %}
+                                <span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Verified ({{ current_user.phone }})</span>
+                                {% else %}
+                                <span class="text-warning"><i class="bi bi-exclamation-circle-fill me-1"></i> Unverified</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            {% if not current_user.phone_verified %}
+                            {% set phone_otp_key = 'phone_otp_' ~ current_user.id|string %}
+                            {% if session.get(phone_otp_key) %}
+                            <form action="{{ url_for('customer.settings') }}" method="POST" class="d-flex gap-2">
+                                <input type="hidden" name="action" value="verify_phone_otp">
+                                <input type="text" name="phone_otp_input" class="form-control form-control-sm rounded-pill bg-light border-0" placeholder="6-digit code" required style="width: 130px;">
+                                <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">Verify</button>
+                            </form>
+                            {% else %}
+                            <form action="{{ url_for('customer.settings') }}" method="POST">
+                                <input type="hidden" name="action" value="send_phone_otp">
+                                <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill px-3" {% if not current_user.phone %}disabled title="Add phone number below first" {% endif %}>Verify SMS</button>
+                            </form>
+                            {% endif %}
+                            {% else %}
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">
+                                <i class="bi bi-shield-check me-1"></i> Verified
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- KYC Verification Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-start justify-content-between flex-column flex-md-row gap-3 mb-3">
+                        <div>
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 d-inline-flex mb-3">
+                                <i class="bi bi-shield-lock fs-5 text-primary"></i>
+                            </div>
+                            <h6 class="fw-semibold mb-1">Identity Verification (KYC)</h6>
+                            <p class="small text-muted mb-2">Verified identities build trust with professionals</p>
+                            <p class="mb-0">
+                                {% if current_user.kyc_status == 'verified' %}
+                                <span class="badge bg-success rounded-pill px-3 py-2"><i class="bi bi-shield-check me-1"></i> Verified</span>
+                                {% elif current_user.kyc_status == 'pending' %}
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-2"><i class="bi bi-clock-history me-1"></i> Pending Review</span>
+                                {% else %}
+                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2">Not Verified</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                    {% if current_user.kyc_status not in ['verified', 'pending'] %}
+                    <form action="{{ url_for('customer.settings') }}" method="POST" enctype="multipart/form-data" class="mt-2">
+                        <input type="hidden" name="action" value="submit_kyc">
+                        <div class="p-4 border border-2 border-dashed rounded-4 bg-light text-center">
+                            <label for="kyc_doc" class="form-label d-block cursor-pointer mb-0">
+                                <i class="bi bi-cloud-arrow-up fs-2 d-block mb-2 text-primary"></i>
+                                <span class="fw-semibold">Upload ID Document</span>
+                                <p class="small text-muted mt-2 mb-0">Ghana Card, Passport, or Driver's License</p>
+                                <input class="form-control form-control-sm d-none" type="file" id="kyc_doc" name="kyc_doc" required onchange="this.form.submit()">
+                                <span class="badge bg-secondary bg-opacity-10 text-dark mt-2">Click to upload</span>
+                            </label>
+                            <p class="x-small text-muted mt-3 mb-0">Accepted: JPG, PNG, PDF (Max 5MB)</p>
+                        </div>
+                    </form>
+                    {% endif %}
+                    {% if current_user.kyc_status == 'pending' %}
+                    <div class="alert alert-warning bg-warning bg-opacity-10 border-0 rounded-3 mt-3 py-2">
+                        <small><i class="bi bi-clock-history me-1"></i> Your document is under review. We'll notify you once verified.</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <!-- Security Tips Card -->
+            <div class="card border-0 bg-light rounded-4">
+                <div class="card-body p-4">
+                    <div class="d-flex gap-3">
+                        <i class="bi bi-shield-check fs-3 text-primary"></i>
+                        <div>
+                            <h6 class="fw-semibold mb-1">Security Tips</h6>
+                            <p class="small text-muted mb-2">Keep your account safe</p>
+                            <ul class="small text-muted mb-0 ps-3">
+                                <li>Use a strong, unique password</li>
+                                <li>Verify your email address</li>
+                                <li>Complete identity verification</li>
+                                <li>Never share verification codes</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Right Column - Profile Update Section -->
+        <div class="col-lg-7">
+            <!-- Header -->
+            <div class="mb-4">
+                <h2 class="fw-bold mb-2">Profile Information</h2>
+                <p class="text-muted">Update your personal details and appearance</p>
+            </div>
+            <!-- Main Form -->
+            <form action="{{ url_for('customer.settings') }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="action" value="update_profile">
+                <!-- Profile Photo Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-semibold mb-4">Profile Photo</h6>
+                        <div class="d-flex align-items-center flex-wrap gap-4">
+                            <div class="position-relative">
+                                <img src="{{ url_for('static', filename='uploads/' + current_user.profile_pic) if current_user.profile_pic else 'https://ui-avatars.com/api/?name=' + current_user.username }}" class="rounded-circle border shadow-sm object-fit-cover" width="100" height="100" id="avatarPreview">
+                                <label for="profile_pic" class="position-absolute bottom-0 end-0 bg-dark text-white rounded-circle p-2 shadow-sm" style="cursor: pointer;">
+                                    <i class="bi bi-camera-fill small"></i>
+                                    <input type="file" id="profile_pic" name="profile_pic" class="d-none" accept="image/*" onchange="previewImage(this)">
+                                </label>
+                            </div>
+                            <div>
+                                <p class="small text-muted mb-0">Allowed: JPG, PNG, or GIF</p>
+                                <p class="small text-muted mb-0">Maximum size: 2MB</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Personal Details Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-semibold mb-4">Personal Details</h6>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Username</label>
+                                <input type="text" name="username" class="form-control rounded-3 bg-light border-0 py-2" value="{{ current_user.username }}" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Phone Number (MoMo)</label>
+                                <input type="text" name="phone" class="form-control rounded-3 bg-light border-0 py-2" value="{{ current_user.phone or '' }}" placeholder="024XXXXXXX" required="Phone number required for verification">
+                            </div>
+                            <div class="">
+                                <label class="form-label fw-semibold small">Email Address</label>
+                                <input type="email" name="email" class="form-control rounded-3 bg-light border-0 py-2" value="{{ current_user.email }}" required>
+                                <div class="form-text small text-muted">Email change requires verification</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Preferences Card -->
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-semibold mb-4">Preferences & Region</h6>
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Current Location</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-0 text-secondary"><i class="bi bi-geo-alt"></i></span>
+                                    <input type="text" name="location" class="form-control rounded-end-3 bg-light border-0 py-2" placeholder="e.g. Accra, Ghana" value="{{ current_user.location or '' }}">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold small">Timezone</label>
+                                <select class="form-select rounded-3 bg-light border-0 py-2 text-secondary">
+                                    <option selected>GMT +00:00 (Accra)</option>
+                                    <option>GMT -05:00 (EST)</option>
+                                    <option>GMT +01:00 (London)</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small">About You (Bio)</label>
+                                <textarea name="bio" class="form-control rounded-3 bg-light border-0 py-3" rows="4" placeholder="Tell professionals a bit about yourself or your projects...">{{ current_user.bio or '' }}</textarea>
+                                <div class="form-text small text-muted">Helps professionals understand your needs better</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Actions -->
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <button type="button" class="btn btn-link text-danger text-decoration-none small p-0">
+                        <i class="bi bi-trash3 me-1"></i> Deactivate Account
+                    </button>
+                    <button type="submit" class="btn btn-dark rounded-pill px-5 py-2 fw-semibold">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('avatarPreview').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+</script>
+<style>
+.x-small {
+    font-size: 0.7rem;
+}
+
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+
+.border-dashed {
+    border-style: dashed !important;
+    border-color: #dee2e6 !important;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: #fbbf24;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
+
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08) !important;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.btn-outline-dark:hover {
+    background-color: #1a1a1a;
+    color: white;
+}
+
+/* Left column sticky on desktop */
+@media (min-width: 992px) {
+    .col-lg-5 {
+        position: sticky;
+        top: 20px;
+        height: fit-content;
+    }
+}
+</style>
+{% endblock %}

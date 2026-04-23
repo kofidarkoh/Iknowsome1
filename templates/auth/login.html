@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Login | IknowSomeOne{% endblock %}
+
+{% block content %}
+<style type="text/css">
+    /* Premium Input Styling */
+    .input-group-text {
+        background-color: #f8f9fa !important;
+        border: 1px solid #e5e7eb;
+        color: #9ca3af;
+        padding-left: 1.25rem;
+    }
+    .form-control {
+        border: 1px solid #e5e7eb;
+        background-color: #f8f9fa !important;
+        font-size: 0.95rem;
+    }
+    .form-control:focus {
+        background-color: #fff !important;
+        border-color: #fbbf24;
+        box-shadow: none;
+    }
+    /* Group focus effect */
+    .input-group:focus-within .input-group-text {
+        background-color: #fff !important;
+        border-color: #fbbf24;
+        color: #fbbf24;
+    }
+    .input-group:focus-within .form-control {
+        background-color: #fff !important;
+        border-color: #fbbf24;
+    }
+
+    /* Side Branding Section */
+    .login-sidebar {
+        background: linear-gradient(135deg, #0b0b0b 0%, #222 100%);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 60px;
+    }
+
+    /* Button Hover */
+    .btn-warning {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn-warning:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(251, 191, 36, 0.3) !important;
+    }
+
+    /* Fix height for desktop app look */
+    @media (min-width: 992px) {
+        .auth-card {
+            min-height: 550px;
+        }
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center align-items-center" style="min-height: 85vh;">
+        <div class="col-11 col-md-9 col-lg-10 col-xl-9" data-aos="zoom-in">
+            
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden auth-card">
+                <div class="row g-0 h-100">
+                    
+                    <div class="col-lg-5 d-none d-lg-flex login-sidebar text-center text-lg-start">
+                        <div class="mb-4">
+                            <h2 class="display-6 fw-bold text-warning">Welcome Back.</h2>
+                            <p class="text-secondary mt-3">Ready to pick up where you left off? Your next big project is waiting.</p>
+                        </div>
+                        <div class="mt-auto">
+                            <p class="x-small text-uppercase fw-bold text-muted" style="letter-spacing: 2px;">
+                                <i class="bi bi-shield-lock-fill me-1"></i> Secure Access
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-7 bg-white p-4 p-md-5">
+                        <div class="text-center text-lg-start mb-5">
+                            <h3 class="fw-bold text-dark">Sign In</h3>
+                            <p class="text-secondary">Enter your workspace credentials</p>
+                        </div>
+                        {% include '_message.html' %}
+                         <form action="{{ url_for('auth.login') }}" method="POST">
+                            <div class="mb-4">
+                                <label class="form-label small fw-bold text-uppercase text-secondary" style="letter-spacing: 1px;">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0 rounded-start-3">
+                                        <i class="bi bi-envelope"></i>
+                                    </span>
+                                    <input type="email" name="email" class="form-control border-start-0 rounded-end-3 py-3" placeholder="name@example.com" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between">
+                                    <label class="form-label small fw-bold text-uppercase text-secondary" style="letter-spacing: 1px;">Password</label>
+                                    <a href="#" class="small text-warning text-decoration-none fw-bold">Forgot?</a>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text border-end-0 rounded-start-3">
+                                        <i class="bi bi-lock"></i>
+                                    </span>
+                                    <input type="password" name="password" class="form-control border-start-0 rounded-end-3 py-3" placeholder="••••••••" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-warning w-100 py-3 rounded-pill fw-bold shadow-sm mt-2">
+                                Sign In <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </form>
+
+                        <div class="text-center mt-5">
+                            <p class="small text-secondary">
+                                Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-warning fw-bold text-decoration-none">Create Account</a>
+                            </p>
+                        </div>
+                    </div>
+
+                </div> </div> <div class="text-center mt-4 d-lg-none">
+                <p class="x-small text-muted text-uppercase fw-bold" style="letter-spacing: 2px;">
+                    <i class="bi bi-shield-lock-fill me-1"></i> Secure Encrypted Workspace
+                </p>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

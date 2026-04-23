@@ -1,0 +1,18 @@
+<div class="modal-content border-0 rounded-4">
+    <div class="modal-header border-0 px-4 pt-4">
+        <h5 class="fw-bold">Reject KYC</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <form hx-post="{{ url_for('admin.reject_kyc', user_id=user.id) }}" 
+          hx-target="#kyc-row-{{ user.id }}" 
+          hx-swap="outerHTML" 
+          data-bs-dismiss="modal">
+        <div class="modal-body px-4">
+            <p class="text-muted small">Let {{ user.username }} know why their documents were rejected.</p>
+            <textarea name="reason" class="form-control rounded-3" rows="3" placeholder="e.g. ID card is too blurry or expired." required></textarea>
+        </div>
+        <div class="modal-footer border-0 px-4 pb-4">
+            <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 fw-bold">Send Rejection</button>
+        </div>
+    </form>
+</div>

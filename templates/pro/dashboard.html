@@ -1,0 +1,225 @@
+{% extends "pro/pro_base.html" %}
+
+{% block title %}Pro Dashboard | IKnowSome1{% endblock %}
+
+{% block content %}
+<style>
+    /* Modern Soft-UI Variables */
+    :root {
+        --dash-bg: #f9fafb;
+        --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.5);
+    }
+
+    .stat-card {
+        border: none;
+        border-radius: 24px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+        box-shadow: var(--soft-shadow);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
+    }
+
+    .icon-shape {
+        width: 54px; height: 54px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 16px;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Professional Table Refinement */
+    .table-container {
+        background: white;
+        border-radius: 24px;
+        border: 1px solid #f1f3f5;
+        overflow: hidden;
+        box-shadow: var(--soft-shadow);
+    }
+
+    .table thead th {
+        background: #fcfcfd;
+        text-transform: uppercase;
+        font-size: 0.65rem;
+        font-weight: 800;
+        letter-spacing: 1px;
+        color: #9ca3af;
+        padding: 20px 24px;
+        border: none;
+    }
+
+    .table tbody td {
+        padding: 18px 24px;
+        border-bottom: 1px solid #f8f9fa;
+    }
+
+    .client-avatar {
+        width: 38px; height: 38px;
+        border-radius: 12px;
+        object-fit: cover;
+    }
+
+    .badge-modern {
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 700;
+        font-size: 0.65rem;
+        letter-spacing: 0.3px;
+    }
+
+    .x-small { font-size: 0.7rem; font-weight: 700; }
+</style>
+
+<div class="row align-items-end mb-5">
+    {% include '_message.html' %}
+    <div class="col-md-7">
+        <span class="badge bg-dark-subtle text-dark px-3 py-2 rounded-pill mb-3 x-small">PRO CONSOLE</span>
+        <h2 class="fw-black text-dark mb-1">Welcome back, {{ current_user.username }}.</h2>
+        <p class="text-muted mb-0">You have <span class="text-dark fw-bold">{{ open_chats_count }} unread messages</span> and {{ active_count }} active jobs.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-4 mt-md-0">
+        <div class="d-inline-flex align-items-center bg-white p-2 rounded-4 shadow-sm border">
+            <div class="bg-warning-subtle rounded-3 p-2 me-3">
+                <i class="bi bi-calendar3 text-warning"></i>
+            </div>
+            <div class="text-start pe-3">
+                <small class="text-muted d-block x-small">Today's Date</small>
+                <span class="fw-bold small">{{ current_date }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if not current_user.full_verified %}
+<div class="alert bg-white border shadow-sm rounded-4 p-3 d-flex align-items-center mb-5">
+    <div class="bg-danger-subtle p-3 rounded-circle me-3">
+        <i class="bi bi-shield-lock-fill text-danger fs-5"></i>
+    </div>
+    <div>
+        <h6 class="fw-bold mb-0">Profile Visibility Restricted</h6>
+        <small class="text-muted">Verify your account to appear in search results for customers.</small>
+    </div>
+    <a href="{{ url_for('pro.settings') }}" class="btn btn-dark btn-sm rounded-pill ms-auto px-4 fw-bold">Fix Now</a>
+</div>
+{% endif %}
+
+<div class="row g-4 mb-5">
+    <div class="col-md-3">
+        <div class="card stat-card p-2">
+            <div class="card-body">
+                <div class="icon-shape bg-success-subtle text-success">
+                    <i class="bi bi-currency-exchange fs-4"></i>
+                </div>
+                <small class="text-muted d-block mb-1 fw-bold">TOTAL EARNINGS</small>
+                <h3 class="fw-black text-dark mb-0">₵{{ "{:,.2f}".format(total_earnings or 0) }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-2">
+            <div class="card-body">
+                <div class="icon-shape bg-warning-subtle text-warning">
+                    <i class="bi bi-lightning-charge-fill fs-4"></i>
+                </div>
+                <small class="text-muted d-block mb-1 fw-bold">ACTIVE HIRES</small>
+                <h3 class="fw-black text-dark mb-0">{{ active_count or 0 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-2">
+            <div class="card-body">
+                <div class="icon-shape bg-primary-subtle text-primary">
+                    <i class="bi bi-check-circle-fill fs-4"></i>
+                </div>
+                <small class="text-muted d-block mb-1 fw-bold">COMPLETED</small>
+                <h3 class="fw-black text-dark mb-0">{{ completed_count or 0 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card stat-card p-2">
+            <div class="card-body">
+                <div class="icon-shape bg-info-subtle text-info">
+                    <i class="bi bi-chat-left-dots-fill fs-4"></i>
+                </div>
+                <small class="text-muted d-block mb-1 fw-bold">OPEN CHATS</small>
+                <h3 class="fw-black text-dark mb-0">{{ open_chats_count or 0 }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h5 class="fw-black text-dark mb-0">Priority Pipeline</h5>
+    <a href="{{ url_for('pro.customer_requests') }}" class="btn btn-link text-warning text-decoration-none fw-bold p-0">View Full List <i class="bi bi-arrow-right small"></i></a>
+</div>
+
+<div class="table-container border-0 mb-5">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Project Name</th>
+                    <th>Value</th>
+                    <th class="text-center">Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in active_business %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="https://ui-avatars.com/api/?name={{ req.customer.username }}&background=f3f4f6&color=4b5563&rounded=true" class="client-avatar me-3 shadow-sm border">
+                            <span class="fw-bold text-dark small">{{ req.customer.username }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="text-dark fw-medium small">{{ req.title or 'General Inquiry' }}</span>
+                    </td>
+                    <td>
+                        <span class="fw-black text-dark small">₵{{ "{:,.2f}".format(req.total_amount or 0) }}</span>
+                    </td>
+                    <td class="text-center">
+                        {% if req.status == 'hired' %}
+                            <span class="badge-modern bg-success-subtle text-success">IN PROGRESS</span>
+                        {% elif req.status == 'quoted' %}
+                            <span class="badge-modern bg-warning-subtle text-warning">AWAITING PAY</span>
+                        {% elif req.status == 'completed' %}
+                            <span class="badge-modern bg-primary-subtle text-primary">FINALIZED</span>
+                        {% else %}
+                            <span class="badge-modern bg-light text-secondary">NEGOTIATING</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-end">
+                        <a href="{{ url_for('chat.view_chat', job_id=req.id) }}" class="btn btn-dark rounded-3 btn-sm fw-bold px-3">Manage</a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="opacity-25 mb-2"><i class="bi bi-inbox fs-1"></i></div>
+                        <p class="text-muted small fw-bold">No active business found in your pipeline.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    /* Final Utility Overrides */
+    .bg-success-subtle { background-color: #ecfdf5 !important; }
+    .bg-warning-subtle { background-color: #fffbeb !important; }
+    .bg-info-subtle { background-color: #eff6ff !important; }
+    .bg-primary-subtle { background-color: #f5f3ff !important; }
+    .bg-danger-subtle { background-color: #fef2f2 !important; }
+    .fw-black { font-weight: 900 !important; }
+</style>
+{% endblock %}

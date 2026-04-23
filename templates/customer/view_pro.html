@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    .rating-star { color: #fbbf24; }
+    .portfolio-img { height: 200px; object-fit: cover; border-radius: 12px; transition: transform 0.3s; }
+    .portfolio-img:hover { transform: scale(1.02); cursor: pointer; }
+    .review-card { border-left: 4px solid #fbbf24; }
+</style>
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center mb-4">
+                <div class="position-relative d-inline-block mx-auto mb-3">
+                    {% if pro.profile_pic %}
+                    <img src="{{ url_for('static', filename='uploads/' + pro.profile_pic) }}" class="rounded-circle border border-3 border-warning" style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                    <img src="https://ui-avatars.com/api/?name={{ pro.username }}&background=fbbf24&size=128" class="rounded-circle">
+                    {% endif %}
+                    {% if pro.full_verified %}
+                    <span class="position-absolute bottom-0 end-0 bg-warning text-white rounded-circle d-flex align-items-center justify-content-center border border-white" style="width: 30px; height: 30px;" title="Verified Professional">
+                        <i class="bi bi-patch-check-fill"></i>
+                    </span>
+                    {% endif %}
+                </div>
+                <h4 class="fw-bold mb-1">{{ pro.username }}</h4>
+                <p class="text-secondary small mb-2">{{ pro.category.name or "Creative Professional" }}</p>
+                {% if pro.is_online() %}
+                <span class="badge bg-opacity-10 text-success rounded-pill" style="font-size: 0.6rem;">
+                    <i class="bi bi-circle-fill" style="font-size: 0.45rem;"></i> Online
+                </span>
+                {% endif %}
+                <div class="mb-3">
+                    <span class="rating-star fw-bold fs-5"><i class="bi bi-star-fill"></i> {{ avg_rating }}</span>
+                    <span class="text-muted small">({{ review_count }} reviews)</span>
+                </div>
+                <div class="d-flex justify-content-center gap-2 mb-4">
+                    <span class="badge bg-light text-dark border rounded-pill px-3">📍 {{ pro.location or "Remote" }}</span>
+                </div>
+                {% if not current_user.email_verified %}
+                <button class="btn btn-warning w-100 fw-bold rounded-pill py-2" data-bs-toggle="modal" data-bs-target="#verifyModal">
+                    <i class="bi bi-chat-dots-fill me-2"></i> Send a Message
+                </button>
+                {% else %}
+                <a href="{{ url_for('customer.hire_pro', pro_id=pro.id) }}" class="btn btn-dark w-100 fw-bold rounded-pill py-2">
+                    <i class="bi bi-chat-dots-fill me-2"></i> Start Project
+                </a>
+                {% endif %}
+            </div>
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h6 class="fw-bold mb-3">Professional Info</h6>
+                <div class="d-flex justify-content-between mb-2 small">
+                    <span class="text-secondary">Response Time</span>
+                    <span class="fw-bold">~2 Hours</span>
+                </div>
+                <div class="d-flex justify-content-between small">
+                    <span class="text-secondary">Member Since</span>
+                    <span class="fw-bold text-uppercase">{{ pro.created_at.strftime('%b %Y') if pro.created_at else '2026' }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                <h5 class="fw-bold mb-3">About the Professional</h5>
+                <p class="text-secondary mb-0">{{ pro.bio or "This professional hasn't updated their bio yet." }}</p>
+            </div>
+            <h5 class="fw-bold mb-3">Work Gallery</h5>
+            <div class="row g-3 mb-5">
+                {% for img in gallery %}
+                <div class="col-md-6 col-lg-4">
+                    <img src="{{ url_for('static', filename='uploads/' + img.image_path) }}" class="img-fluid portfolio-img w-100 shadow-sm">
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="bg-light rounded-4 py-5 text-center text-muted">
+                        <i class="bi bi-images fs-1 d-block mb-2"></i>
+                        No portfolio images uploaded yet.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <h5 class="fw-bold mb-3">Customer Reviews</h5>
+            <div class="row g-3">
+                {% for review in reviews %}
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm rounded-4 p-3 review-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold small">{{ review.customer.username }}</span>
+                                <span class="text-warning small">
+                                    {% for i in range(review.rating) %}<i class="bi bi-star-fill"></i>{% endfor %}
+                                </span>
+                            </div>
+                            <span class="x-small text-muted">{{ review.created_at.strftime('%d %b, %Y') }}</span>
+                        </div>
+                        <p class="small text-secondary mb-0 italic">"{{ review.comment }}"</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12 text-center py-4">
+                    <p class="text-muted small">No reviews yet. Be the first to hire this pro!</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="verifyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-body p-5 text-center">
+                <div class="mb-4">
+                    <i class="bi bi-shield-lock text-warning" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="fw-bold">Verification Required</h4>
+                <p class="text-secondary">To keep our community safe, please verify your email before messaging professionals.</p>
+                <div class="d-grid gap-2 mt-4">
+                    <a href="{{ url_for('customer.settings') }}" class="btn btn-dark rounded-pill fw-bold">Go to Settings</a>
+                    <button type="button" class="btn btn-link text-secondary btn-sm" data-bs-dismiss="modal">Maybe later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

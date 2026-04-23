@@ -1,0 +1,9 @@
+                    {% with messages = get_flashed_messages(with_categories=True) %}
+                      {% if messages %}
+                        {% for category, message in messages %}
+                          <div class="alert alert-{{category}} small py-2" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i> {{ message }}
+                          </div>
+                        {% endfor %}
+                      {% endif %}
+                    {% endwith %}

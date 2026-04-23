@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}About Us | IKnowSome1{% endblock %}
+
+{% block content %}
+<style>
+    .about-hero {
+        padding: 80px 0 60px;
+        background: linear-gradient(135deg, #ffffff 0%, #fefce8 100%);
+    }
+    
+    .text-gradient {
+        background: linear-gradient(135deg, #1a1a1a 0%, #fbbf24 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .value-card {
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .value-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .vision-section {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: #ffffff;
+        padding: 80px 40px;
+        border-radius: 48px;
+    }
+    
+    .icon-circle {
+        width: 56px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 16px;
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    /* Team Section Styles */
+    .team-card {
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .team-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    .team-img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 3px solid #fbbf24;
+    }
+    
+    .social-icon {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #f8f9fa;
+        color: #4a5568;
+        transition: all 0.2s ease;
+    }
+    
+    .social-icon:hover {
+        background: #fbbf24;
+        color: #000;
+        transform: translateY(-2px);
+    }
+    
+    @media (max-width: 768px) {
+        .about-hero {
+            padding: 50px 0 40px;
+        }
+        
+        .vision-section {
+            padding: 50px 24px;
+            border-radius: 32px;
+        }
+        
+        .display-3 {
+            font-size: 2rem;
+        }
+        
+        .team-img {
+            width: 100px;
+            height: 100px;
+        }
+    }
+</style>
+
+<!-- Hero Section -->
+<section class="about-hero">
+    <div class="container text-center">
+        <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-4 py-2 mb-4 fw-semibold">
+            OUR STORY
+        </span>
+        <h1 class="display-4 fw-bold mb-4">
+            Because everyone needs <br>
+            <span class="text-gradient">"Someone"</span> they can trust.
+        </h1>
+        <p class="lead text-secondary mx-auto" style="max-width: 700px;">
+            IKnowSome1 was born out of a simple problem: the gap between people with big visions 
+            and the professionals who can actually bring them to life.
+        </p>
+    </div>
+</section>
+
+<!-- Bridge Section -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800" 
+                     class="img-fluid rounded-4 shadow-lg" alt="Team collaborating">
+            </div>
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Bridging the Gap</h2>
+                <p class="text-secondary mb-4 lead" style="font-size: 1.1rem;">
+                    In a world saturated with generic freelancers, we believe in <strong class="text-dark">Craftsmanship</strong>. 
+                    Whether it's a cinematic poster, a complex branding project, or a technical consultation, 
+                    we vet our pros so you don't have to.
+                </p>
+                <div class="d-flex gap-4 mb-4">
+                    <div>
+                        <div class="icon-circle bg-warning bg-opacity-10 mb-3">
+                            <i class="bi bi-check-circle-fill text-warning fs-4"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">Verified Quality</h6>
+                        <small class="text-secondary">Strict verification for every pro</small>
+                    </div>
+                    <div>
+                        <div class="icon-circle bg-primary bg-opacity-10 mb-3">
+                            <i class="bi bi-shield-lock-fill text-primary fs-4"></i>
+                        </div>
+                        <h6 class="fw-bold mb-1">Secure Collaboration</h6>
+                        <small class="text-secondary">Protected payments & data</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values Section -->
+<section class="py-5 bg-light">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge bg-dark bg-opacity-10 text-dark rounded-pill px-4 py-2 mb-3">OUR VALUES</span>
+            <h2 class="fw-bold mb-2">What we stand for</h2>
+            <p class="text-secondary">The principles that guide everything we do</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card value-card h-100 p-4 rounded-4 shadow-sm border-0">
+                    <div class="icon-circle bg-warning bg-opacity-10 mb-4">
+                        <i class="bi bi-lightning-charge-fill text-warning fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Speed with Precision</h5>
+                    <p class="text-secondary small mb-0">
+                        We value your time. Our platform connects you with the right pro in minutes, not days.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card value-card h-100 p-4 rounded-4 shadow-sm border-0">
+                    <div class="icon-circle bg-success bg-opacity-10 mb-4">
+                        <i class="bi bi-people-fill text-success fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Human Connection</h5>
+                    <p class="text-secondary small mb-0">
+                        Algorithms are great, but humans build businesses. We prioritize real communication.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card value-card h-100 p-4 rounded-4 shadow-sm border-0">
+                    <div class="icon-circle bg-info bg-opacity-10 mb-4">
+                        <i class="bi bi-gem text-info fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold mb-2">Excellence Only</h5>
+                    <p class="text-secondary small mb-0">
+                        "Good enough" isn't enough. We showcase high-end, quality work from top professionals.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Team Section -->
+<section class="py-5">
+    <div class="container py-4">
+        <div class="text-center mb-5">
+            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-4 py-2 mb-3">MEET THE TEAM</span>
+            <h2 class="fw-bold mb-2">The faces behind IKnowSome1</h2>
+            <p class="text-secondary">Passionate people dedicated to connecting talent with opportunity</p>
+        </div>
+        
+        <div class="row g-4 justify-content-center">
+            <!-- Team Member 1 - Founder/CEO -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card team-card h-100 p-4 rounded-4 shadow-sm border-0 text-center">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Michael+Chen&background=fbbf24&color=000&rounded=true&size=120&fontsize=0.4&bold=true" 
+                             class="team-img rounded-circle" alt="Michael Chen">
+                    </div>
+                    <h5 class="fw-bold mb-1">Michael Chen</h5>
+                    <p class="text-warning small fw-semibold mb-2">Founder & CEO</p>
+                    <p class="small text-secondary mb-3">Former tech executive with a mission to democratize access to top talent.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-envelope small"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Member 2 - COO -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card team-card h-100 p-4 rounded-4 shadow-sm border-0 text-center">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Sarah+Johnson&background=fbbf24&color=000&rounded=true&size=120&fontsize=0.4&bold=true" 
+                             class="team-img rounded-circle" alt="Sarah Johnson">
+                    </div>
+                    <h5 class="fw-bold mb-1">Sarah Johnson</h5>
+                    <p class="text-warning small fw-semibold mb-2">Chief Operating Officer</p>
+                    <p class="small text-secondary mb-3">Operations expert passionate about creating seamless user experiences.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-envelope small"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Member 3 - CTO -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card team-card h-100 p-4 rounded-4 shadow-sm border-0 text-center">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name=David+Okonkwo&background=fbbf24&color=000&rounded=true&size=120&fontsize=0.4&bold=true" 
+                             class="team-img rounded-circle" alt="David Okonkwo">
+                    </div>
+                    <h5 class="fw-bold mb-1">David Okonkwo</h5>
+                    <p class="text-warning small fw-semibold mb-2">Chief Technology Officer</p>
+                    <p class="small text-secondary mb-3">Tech innovator building the infrastructure for the future of work.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-envelope small"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Member 4 - Head of Community -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card team-card h-100 p-4 rounded-4 shadow-sm border-0 text-center">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Amara+Ndlovu&background=fbbf24&color=000&rounded=true&size=120&fontsize=0.4&bold=true" 
+                             class="team-img rounded-circle" alt="Amara Ndlovu">
+                    </div>
+                    <h5 class="fw-bold mb-1">Amara Ndlovu</h5>
+                    <p class="text-warning small fw-semibold mb-2">Head of Community</p>
+                    <p class="small text-secondary mb-3">Building bridges between clients and professionals across Africa.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-envelope small"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Member 5 - Product Lead -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card team-card h-100 p-4 rounded-4 shadow-sm border-0 text-center">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name=James+Wilson&background=fbbf24&color=000&rounded=true&size=120&fontsize=0.4&bold=true" 
+                             class="team-img rounded-circle" alt="James Wilson">
+                    </div>
+                    <h5 class="fw-bold mb-1">James Wilson</h5>
+                    <p class="text-warning small fw-semibold mb-2">Product Lead</p>
+                    <p class="small text-secondary mb-3">Designing intuitive experiences that make hiring effortless.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-envelope small"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Team Member 6 - Customer Success -->
+            <div class="col-lg-4 col-md-6">
+                <div class="card team-card h-100 p-4 rounded-4 shadow-sm border-0 text-center">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name=Grace+Mensah&background=fbbf24&color=000&rounded=true&size=120&fontsize=0.4&bold=true" 
+                             class="team-img rounded-circle" alt="Grace Mensah">
+                    </div>
+                    <h5 class="fw-bold mb-1">Grace Mensah</h5>
+                    <p class="text-warning small fw-semibold mb-2">Customer Success Lead</p>
+                    <p class="small text-secondary mb-3">Ensuring every user gets the support they need to succeed.</p>
+                    <div class="d-flex justify-content-center gap-2">
+                        <a href="#" class="social-icon"><i class="bi bi-linkedin small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-twitter-x small"></i></a>
+                        <a href="#" class="social-icon"><i class="bi bi-envelope small"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5 pt-3">
+            <p class="text-secondary mb-0">Want to join our team? <a href="#" class="text-warning fw-semibold text-decoration-none">We're hiring! <i class="bi bi-arrow-right"></i></a></p>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center g-4">
+            <div class="col-md-3">
+                <div class="stats-number">500+</div>
+                <p class="text-secondary small mb-0">Verified Pros</p>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-number">1k+</div>
+                <p class="text-secondary small mb-0">Happy Clients</p>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-number">50+</div>
+                <p class="text-secondary small mb-0">Categories</p>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-number">24/7</div>
+                <p class="text-secondary small mb-0">Support</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="container my-5">
+    <div class="vision-section text-center">
+        <h2 class="display-5 fw-bold mb-4">Ready to find your "Someone"?</h2>
+        <p class="mb-5 opacity-75" style="font-size: 1.1rem;">
+            Join thousands of businesses and professionals already growing on IKnowSome1.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-warning rounded-pill px-5 py-3 fw-semibold shadow-sm">
+                Get Started <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+            <a href="{{ url_for('customer.explore') }}" class="btn btn-outline-light rounded-pill px-5 py-3 fw-semibold">
+                Explore Pros
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

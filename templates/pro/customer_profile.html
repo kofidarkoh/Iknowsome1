@@ -1,0 +1,105 @@
+{% extends "pro/pro_base.html" %}
+
+{% block title %}{{ customer.username }}'s Profile | IknowSomeOne{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+            <button onclick="history.back()" class="btn btn-link text-secondary text-decoration-none p-0 mb-4 transition-all back-btn">
+                <i class="bi bi-arrow-left-short fs-5"></i> Back
+            </button>
+
+            <div class="card border-0 shadow-sm rounded-5 overflow-hidden bg-white">
+                <div class="profile-cover" style="height: 140px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
+                    <div class="h-100 w-100 opacity-25" style="background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');"></div>
+                </div>
+                
+                <div class="card-body p-4 p-md-5 pt-0 text-center">
+                    <div class="position-relative d-inline-block" style="margin-top: -70px;">
+                        <img src="{{ url_for('static', filename='uploads/' + customer.profile_pic) if customer.profile_pic else 'https://ui-avatars.com/api/?background=random&name=' + customer.username }}" 
+                             class="rounded-circle border border-5 border-white shadow-sm object-fit-cover bg-white" 
+                             width="130" height="130">
+                        {% if customer.is_online() %}
+                            <span class="position-absolute bottom-0 end-0 bg-success border border-4 border-white rounded-circle p-2 shadow-sm" title="Online"></span>
+                        {% endif %}
+                    </div>
+
+                    <h3 class="fw-bold text-dark mt-3 mb-1">{{ customer.username }}</h3>
+                    <div class="d-flex align-items-center justify-content-center gap-3 mb-4">
+                        {% if customer.location %}
+                            <span class="text-secondary small"><i class="bi bi-geo-alt-fill text-primary me-1"></i> {{ customer.location }}</span>
+                        {% endif %}
+                        <span class="text-secondary small"><i class="bi bi-calendar3 me-1"></i> Joined {{ customer.created_at.strftime('%B %Y') }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-center gap-2 mb-4">
+                        {% if customer.email_verified %}
+                            <span class="badge bg-blue-subtle text-primary rounded-pill px-3 py-2 border-0">
+                                <i class="bi bi-envelope-check-fill me-1"></i> Email Verified
+                            </span>
+                        {% endif %}
+                        {% if customer.phone_verified %}
+                            <span class="badge bg-green-subtle text-success rounded-pill px-3 py-2 border-0">
+                                <i class="bi bi-phone-fill me-1"></i> Phone Verified
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <hr class="opacity-10 mb-4">
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-6 border-end">
+                            <div class="p-2">
+                                <h4 class="fw-bold text-dark mb-0">{{ project_count or 0 }}</h4>
+                                <small class="text-muted text-uppercase ls-1 x-small fw-bold">Project History</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-2">
+                                <h4 class="fw-bold text-dark mb-0">Verified</h4>
+                                <small class="text-muted text-uppercase ls-1 x-small fw-bold">Account Status</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-start bg-light rounded-4 p-4 border border-white shadow-sm">
+                        <h6 class="fw-bold text-dark mb-3 text-uppercase x-small ls-2">Profile Summary</h6>
+                        <p class="text-secondary mb-0 lh-base">
+                            {{ customer.bio or "This customer prefers to keep their bio private." }}
+                        </p>
+                    </div>
+
+                    <div class="mt-5">
+                        <a href="{{ url_for('chat.view_chat', job_id=req.id) if req else '#' }}" 
+                           class="btn btn-dark rounded-pill px-5 py-3 fw-bold shadow transition-all hover-lift">
+                            <i class="bi bi-chat-dots-fill me-2"></i> Continue Conversation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small { font-size: 0.7rem; }
+    .ls-1 { letter-spacing: 0.5px; }
+    .ls-2 { letter-spacing: 1.5px; }
+    .bg-light { background-color: #f8fafc !important; }
+    
+    /* Custom Badge Colors */
+    .bg-blue-subtle { background-color: #e0f2fe; }
+    .bg-green-subtle { background-color: #dcfce7; }
+    
+    /* Animations */
+    .transition-all { transition: all 0.3s ease; }
+    .back-btn:hover { transform: translateX(-5px); color: #000 !important; }
+    .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.15) !important; }
+    
+    .profile-cover {
+        background-size: cover;
+        background-position: center;
+    }
+</style>
+{% endblock %}

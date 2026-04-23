@@ -1,0 +1,178 @@
+{% extends "admin/admin_base.html" %}
+
+{% block admin_content %}
+<style>
+    /* Modern Soft-UI Refinements */
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --soft-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        --inner-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.3);
+    }
+
+    .card-stat {
+        background: var(--glass-bg);
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        border-radius: 24px;
+        padding: 25px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: var(--soft-shadow);
+        backdrop-filter: blur(10px);
+    }
+
+    .card-stat:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        border-radius: 16px;
+        box-shadow: var(--inner-shadow);
+    }
+
+    .admin-table-card {
+        background: white;
+        border-radius: 28px;
+        border: 1px solid #f1f3f5;
+        box-shadow: var(--soft-shadow);
+        overflow: hidden;
+    }
+
+    .status-pill {
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-approve {
+        background: #10b981;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 6px 12px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+    
+    .btn-approve:hover { background: #059669; color: white; }
+
+    .fw-black { font-weight: 900; }
+    .text-xs { font-size: 0.75rem; }
+</style>
+
+<div class="row g-4 mb-5">
+    {% include '_message.html' %}
+    <div class="col-md-4">
+        <div class="card-stat">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-xs text-uppercase text-muted fw-black">Platform Revenue</span>
+                    <h2 class="fw-black mb-0 mt-1">₵{{ "{:,.2f}".format(stats.total_revenue) }}</h2>
+                </div>
+                <div class="stat-icon bg-success-subtle text-success">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-stat">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-xs text-uppercase text-muted fw-black">Active Community</span>
+                    <h2 class="fw-black mb-0 mt-1">{{ stats.total_users }}</h2>
+                </div>
+                <div class="stat-icon bg-primary-subtle text-primary">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card-stat">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="text-xs text-uppercase text-muted fw-black">Active Projects</span>
+                    <h2 class="fw-black mb-0 mt-1">{{ stats.active_jobs }}</h2>
+                </div>
+                <div class="stat-icon bg-warning-subtle text-warning">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex align-items-center justify-content-between mb-4 px-2">
+            <h4 class="fw-black mb-0">Action Required</h4>
+            <span class="badge bg-danger rounded-pill px-3">{{ pending_transactions|length }} Pending</span>
+        </div>
+        
+        <div class="admin-table-card">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4 border-0 text-xs fw-black text-muted text-uppercase">User</th>
+                            <th class="border-0 text-xs fw-black text-muted text-uppercase">Type</th>
+                            <th class="border-0 text-xs fw-black text-muted text-uppercase">Amount</th>
+                            <th class="border-0 text-xs fw-black text-muted text-uppercase">Details</th>
+                            <th class="border-0 text-xs fw-black text-muted text-uppercase">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for txn in pending_transactions %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="fw-bold text-dark">{{ txn.user.username }}</div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="status-pill {% if txn.type == 'deposit' %}bg-info-subtle text-info{% else %}bg-danger-subtle text-danger{% endif %}">
+                                    {{ txn.type }}
+                                </span>
+                            </td>
+                            <td><span class="fw-black">₵{{ "{:,.2f}".format(txn.amount) }}</span></td>
+                            <td>
+                                <div class="text-xs text-muted">
+                                    {% if txn.type == 'withdraw' %}
+                                        {{ txn.network|upper }}: {{ txn.momo_number }}
+                                    {% else %}
+                                        Manual Deposit Verification
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td>
+                                <form action="{{ url_for('admin.approve_transaction', txn_id=txn.id) }}" method="POST">
+                                    <button type="submit" class="btn-approve btn-sm shadow-sm">
+                                        Approve
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-5 text-muted">
+                                <i class="bi bi-check-all fs-2 d-block mb-2"></i>
+                                All clear! No pending transactions.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

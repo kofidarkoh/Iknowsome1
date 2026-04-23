@@ -1,0 +1,55 @@
+{% extends "admin/admin_base.html" %}
+{% block admin_content %}
+<style>
+    /* This class is added by HTMX during the swap:0.5s period */
+    .htmx-swapping {
+        opacity: 0;
+        transform: translateX(20px);
+        transition: all 0.5s ease-out;
+    }
+</style>
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold">User Management</h4>
+        <div class="d-flex gap-2">
+            <input type="text" style="width: 250px" name="search" class="form-control rounded-pill px-3" 
+       placeholder="Search users..." 
+       hx-get="{{ url_for('admin.user_management') }}" 
+       hx-trigger="keyup changed delay:500ms" 
+       hx-target="#user-list">
+            <button class="btn btn-dark rounded-pill px-4">Add User</button>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="bg-light text-muted small">
+                    <tr>
+                        <th class="ps-4">USER</th>
+                        <th>ROLE</th>
+                        <th>STATUS</th>
+                        <th class="text-end pe-4">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody id="user-list">
+                    {% include 'admin/partials/user_rows.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modal-container" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" id="modal-content"></div>
+</div>
+
+<script>
+    // Show modal when HTMX loads content into it
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+        if (e.detail.target.id === "modal-content") {
+            new bootstrap.Modal('#modal-container').show();
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,98 @@
+<style>
+    .sidebar-link {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem 1rem;
+        color: var(--bs-secondary-color);
+        text-decoration: none;
+        border-radius: 10px;
+        transition: 0.2s;
+        margin-bottom: 5px;
+    }
+
+    .sidebar-link:hover,
+    .sidebar-link.active {
+        background-color: var(--primary-gold, #fbbf24);
+        color: #000 !important;
+        font-weight: 600;
+    }
+
+    .sidebar-link i {
+        font-size: 1.2rem;
+        margin-right: 12px;
+    }
+
+    .notif-badge-gold {
+        background-color: var(--primary-gold, #fbbf24);
+        color: #000;
+        font-weight: bold;
+        font-size: 0.65rem;
+        padding: 2px 7px;
+        border-radius: 50px;
+        line-height: 1;
+        display: inline-block;
+    }
+
+    .inquiry-card {
+        background: #f8f9fa;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        padding: 10px;
+        margin-bottom: 10px;
+        transition: 0.3s;
+    }
+
+    .inquiry-card:hover {
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .x-small { font-size: 0.65rem; }
+</style>
+
+<div class="sticky-top" style="top: 100px;">
+    {# 1. CALCULATE COUNTS AT THE TOP TO PREVENT UNDEFINED ERRORS #}
+    {% set pending_inquiries = JobRequest.select().where((JobRequest.pro == current_user) and (JobRequest.status == 'pending')) %}
+    {% set pending_count = pending_inquiries.count() %}
+
+    <div class="d-flex align-items-center mb-4 px-3">
+        <a href="{{url_for('pro.view_profile', user_id = current_user.id)}}" class="nav-link"><img src="{% if current_user.profile_pic %}{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}{% else %}https://ui-avatars.com/api/?name={{ current_user.username }}&background=fbbf24&color=000{% endif %}" 
+             class="rounded-circle me-2 object-fit-cover" width="35" height="35">
+        <span class="fw-bold small text-truncate">{{ current_user.username }}</span></a>
+    </div>
+
+    <h6 class="text-uppercase fw-bold small text-secondary px-3 mb-3" style="font-size: 0.65rem; letter-spacing: 1px;">Workspace</h6>
+    
+    <nav>
+        <a href="{{ url_for('pro.dashboard') }}" class="sidebar-link {% if request.endpoint == 'pro.dashboard' %}active{% endif %}">
+            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </a>
+
+        {# 3. ACTIVE CHATS LINK #}
+        <a href="{{ url_for('pro.customer_requests') }}" class="sidebar-link d-flex justify-content-between align-items-center {% if request.endpoint in ['pro.customer_requests', 'chat.view_chat'] %}active{% endif %}">
+            <div class="d-flex align-items-center">
+                <i class="bi bi-chat-square-text"></i>
+                <span class="me-2">Active Chats</span>
+            </div>
+            {% if notif_count and notif_count > 0 %}
+                <span class="notif-badge-gold">{{ notif_count }}</span>
+            {% endif %}
+        </a>
+
+        <a href="{{ url_for('pro.portfolio') }}" class="sidebar-link {% if request.endpoint == 'pro.portfolio' %}active{% endif %}">
+            <i class="bi bi-images"></i> Portfolio
+        </a>
+    </nav>
+
+    <hr class="my-4 opacity-50">
+
+    <h6 class="text-uppercase fw-bold small text-secondary px-3 mb-3" style="font-size: 0.65rem; letter-spacing: 1px;">Account</h6>
+    <nav>
+        <a href="{{ url_for('pro.settings') }}" class="sidebar-link {% if request.endpoint == 'pro.settings' %}active{% endif %}">
+            <i class="bi bi-gear"></i> Settings
+        </a>
+        <a href="{{ url_for('auth.logout') }}" class="sidebar-link text-danger">
+            <i class="bi bi-box-arrow-left"></i> Logout
+        </a>
+    </nav>
+</div>

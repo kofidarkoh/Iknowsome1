@@ -1,0 +1,194 @@
+{% extends "pro/pro_base.html" %}
+
+{% block content %}
+<style>
+    /* Card & UI Styling */
+    .wallet-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #374151 100%);
+        border-radius: 24px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    .wallet-card::after {
+        content: "";
+        position: absolute;
+        top: -50px;
+        right: -50px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    .txn-icon {
+        width: 42px;
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+    }
+    .x-small { font-size: 0.7rem; }
+    .fw-black { font-weight: 900; }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3 class="fw-bold mb-0">My Wallet</h3>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#withdrawModal">
+                        <i class="bi bi-bank me-1"></i> Withdraw
+                    </button>
+                    <button class="btn btn-dark btn-sm rounded-pill px-4 fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#depositModal">
+                        <i class="bi bi-plus-lg me-1"></i> Add Funds
+                    </button>
+                </div>
+            </div>
+
+            <div class="card wallet-card border-0 shadow-lg mb-5">
+                <div class="card-body p-5">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <p class="text-uppercase small fw-bold opacity-50 mb-1">Available Balance</p>
+                            <h1 class="display-5 fw-bold mb-0">₵{{ "{:,.2f}".format(current_user.balance) }}</h1>
+                        </div>
+                        <i class="bi bi-wallet2 fs-1 opacity-25"></i>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="me-4 border-end pe-4 border-secondary">
+                            <p class="x-small text-uppercase opacity-50 mb-0">Currency</p>
+                            <span class="small fw-bold">GHS (₵)</span>
+                        </div>
+                        <div>
+                            <p class="x-small text-uppercase opacity-50 mb-0">Account Type</p>
+                            <span class="small fw-bold text-uppercase">{{ current_user.role }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between mb-3 px-1">
+                <h5 class="fw-bold mb-0">Transaction History</h5>
+                <a href="#" class="text-decoration-none small text-muted fw-bold">View All</a>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                <div class="list-group list-group-flush">
+                    {% for txn in transactions %}
+                    <div class="list-group-item p-3 border-0 border-bottom">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="txn-icon me-3 
+                                    {% if txn.type == 'deposit' %}bg-success-subtle text-success
+                                    {% elif txn.type == 'withdraw' %}bg-danger-subtle text-danger
+                                    {% else %}bg-light text-dark{% endif %}">
+                                    
+                                    {% if txn.type == 'deposit' %}
+                                        <i class="bi bi-arrow-down-left"></i>
+                                    {% elif txn.type == 'withdraw' %}
+                                        <i class="bi bi-arrow-up-right"></i>
+                                    {% elif txn.type == 'payment' %}
+                                        <i class="bi bi-briefcase"></i>
+                                    {% else %}
+                                        <i class="bi bi-dot"></i>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <h6 class="mb-0 fw-bold small text-uppercase">{{ txn.type }}</h6>
+                                    <small class="text-muted" style="font-size: 0.7rem;">{{ txn.timestamp.strftime('%d %b, %H:%M') }}</small>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span class="fw-bold {% if txn.type == 'deposit' or (txn.type == 'payment' and current_user.role == 'pro') %}text-success{% else %}text-danger{% endif %}">
+                                    {% if txn.type == 'deposit' or (txn.type == 'payment' and current_user.role == 'pro') %}+{% else %}-{% endif %}₵{{ "{:,.2f}".format(txn.amount|abs) }}
+                                </span>
+                                <div class="x-small fw-bold {% if txn.status == 'pending' %}text-warning{% else %}text-muted{% endif %}" style="font-size: 0.6rem;">
+                                    {{ txn.status|upper if txn.status else 'COMPLETED' }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="p-5 text-center">
+                        <p class="text-muted small">No transactions found.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="depositModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <div class="bg-warning-subtle rounded-circle d-inline-block p-3 mb-3">
+                        <i class="bi bi-phone-vibrate text-warning fs-3"></i>
+                    </div>
+                    <h5 class="fw-bold">Manual Momo Deposit</h5>
+                    <p class="text-muted small">Transfer funds to our merchant account below.</p>
+                </div>
+
+                <div class="bg-light rounded-4 p-3 mb-4">
+                    <div class="mb-3">
+                        <label class="x-small text-muted fw-bold d-block">MTN MOMO NUMBER</label>
+                        <span class="fw-bold text-dark fs-5">024 123 4567</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="x-small text-muted fw-bold d-block">ACCOUNT NAME</label>
+                        <span class="fw-bold text-dark">IKnowSome1 Limited</span>
+                    </div>
+                    <div>
+                        <label class="x-small text-muted fw-bold d-block">REFERENCE (REQUIRED)</label>
+                        <span class="badge bg-dark rounded-pill">{{ current_user.username }}</span>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light w-100 rounded-pill fw-bold" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-warning w-100 rounded-pill fw-bold" data-bs-dismiss="modal">I Have Sent It</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="withdrawModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-body p-4">
+                <div class="text-center mb-4">
+                    <h5 class="fw-bold">Withdraw Funds</h5>
+                    <p class="text-muted small">Funds will be sent to your mobile money wallet.</p>
+                </div>
+
+                <form action="{{ url_for('pro.request_withdrawal') }}" method="POST">
+                    <div class="mb-3">
+                        <label class="small fw-bold">Amount to Withdraw (₵)</label>
+                        <input type="number" name="amount" min="10" max="{{ current_user.balance }}" class="form-control rounded-3" placeholder="0.00" required>
+                        <div class="x-small text-muted mt-1">Min: ₵10.00 | Max: ₵{{ current_user.balance }}</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="small fw-bold">Momo Number</label>
+                        <input type="text" name="momo_number" class="form-control rounded-3" placeholder="024XXXXXXX" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="small fw-bold">Network</label>
+                        <select name="network" class="form-select rounded-3">
+                            <option value="mtn">MTN Mobile Money</option>
+                            <option value="telecel">Telecel Cash</option>
+                            <option value="airteltigo">AT Money</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100 rounded-pill fw-bold py-2">Submit Request</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

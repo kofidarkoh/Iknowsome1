@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+    /* Soft-UI Palette */
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --accent-gradient: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+        --soft-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Status Pills - Modern Minimalist */
+    .status-pill { font-size: 0.65rem; padding: 4px 10px; border-radius: 6px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-quoted { background: #fee2e2; color: #991b1b; }
+    .status-active, .status-hired { background: #d1fae5; color: #065f46; }
+    .status-completed { background: #dbeafe; color: #1e40af; }
+
+    /* Floating Project Cards */
+    .project-card { 
+        transition: all 0.2s cubic-bezier(0.165, 0.84, 0.44, 1); 
+        border: none; 
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+    .project-card:hover { 
+        transform: scale(1.01); 
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06); 
+    }
+    
+    /* Modern Underline Tabs */
+    .nav-pills-modern .nav-link { 
+        color: #9ca3af; 
+        font-weight: 700; 
+        border: none; 
+        background: none; 
+        padding: 12px 0; 
+        margin-right: 30px; 
+        position: relative;
+        border-radius: 0;
+    }
+    .nav-pills-modern .nav-link.active { 
+        color: #111827 !important; 
+        background: none !important; 
+    }
+    .nav-pills-modern .nav-link.active::after { 
+        content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 3px; background: #fbbf24; border-radius: 10px; 
+    }
+
+    /* Glass Wallet Design */
+    .dash-wallet { 
+        background: white;
+        border: 1px solid #f3f4f6;
+        border-radius: 24px; 
+        padding: 24px; 
+        box-shadow: var(--soft-shadow);
+    }
+    .wallet-icon-box {
+        width: 48px; height: 48px; border-radius: 14px;
+        background: #fffbeb; color: #fbbf24;
+        display: flex; align-items: center; justify-content: center;
+    }
+
+    .pro-avatar-stack { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; }
+</style>
+
+{# 1. MACROS #}
+{% macro project_card(req) %}
+<div class="col-12 mb-3">
+    <div class="card project-card rounded-4 p-3 p-md-4 shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="mt-1">
+                        {% if req.status == 'pending' %}<span class="status-pill status-pending">Inquiry</span>
+                        {% elif req.status == 'quoted' %}<span class="status-pill status-quoted">Quote</span>
+                        {% elif req.status in ['active', 'hired'] %}<span class="status-pill status-active">Live</span>
+                        {% elif req.status == 'completed' %}<span class="status-pill status-completed">Done</span>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-1">{{ req.title }}</h6>
+                        <p class="text-muted small mb-0">{{ req.description|truncate(60) or "Open chat to view details" }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 border-start-md ps-md-4 mt-3 mt-md-0">
+                <div class="d-flex align-items-center">
+                    <img src="{{ url_for('static', filename='uploads/' + req.pro.profile_pic) if req.pro.profile_pic else 'https://ui-avatars.com/api/?name=' + req.pro.username + '&background=f3f4f6&color=111' }}" class="pro-avatar-stack me-3">
+                    <div>
+                        <p class="text-muted mb-0" style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase;">Pro</p>
+                        <span class="fw-bold small text-dark">{{ req.pro.username }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                <a href="{{ url_for('chat.view_chat', job_id=req.id) }}" class="btn btn-light rounded-3 fw-bold px-4 border">
+                    {% if req.status == 'quoted' %}Review & Pay{% else %}Manage Job{% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro empty_state(msg="No records found.") %}
+<div class="col-12 text-center py-5">
+    <div class="opacity-25 mb-3"><i class="bi bi-stack fs-1"></i></div>
+    <p class="text-muted small fw-bold">{{ msg }}</p>
+</div>
+{% endmacro %}
+
+{# 2. PAGE CONTENT #}
+<div class="container py-5">
+    <div class="row g-4 mb-5">
+        <div class="col-lg-8">
+            <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2 mb-3 fw-bold">Customer Dashboard</span>
+            <h2 class="fw-black text-dark mb-2">Hello, {{ current_user.username }}.</h2>
+            <p class="text-muted">You have <span class="text-dark fw-bold">{{ stats.active }} active</span> projects running today.</p>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="dash-wallet">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="wallet-icon-box shadow-sm">
+                        <i class="bi bi-wallet2 fs-5"></i>
+                    </div>
+                    <a href="{{ url_for('customer.wallet') }}" class="btn btn-dark btn-sm rounded-3 px-3 fw-bold">Top Up</a>
+                </div>
+                <p class="text-muted small fw-bold mb-0">Balance</p>
+                <h3 class="fw-bold text-dark">₵{{ "{:,.2f}".format(current_user.balance) }}</h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex border-bottom mb-4 overflow-auto">
+        <ul class="nav nav-pills-modern" id="projectTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="all-tab" data-bs-toggle="pill" data-bs-target="#tab-all" type="button">Everything</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="active-tab" data-bs-toggle="pill" data-bs-target="#tab-active" type="button">In Progress</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="completed-tab" data-bs-toggle="pill" data-bs-target="#tab-completed" type="button">Archive</button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="tab-content" id="projectTabsContent">
+        <div class="tab-pane fade show active" id="tab-all">
+            <div class="row">
+                {% for req in requests %} {{ project_card(req) }} {% else %} {{ empty_state() }} {% endfor %}
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tab-active">
+            <div class="row">
+                {% for req in requests if req.status in ['active', 'hired', 'quoted'] %} {{ project_card(req) }} {% else %} {{ empty_state("No active jobs.") }} {% endfor %}
+            </div>
+        </div>
+        <div class="tab-pane fade" id="tab-completed">
+            <div class="row">
+                {% for req in requests if req.status == 'completed' %} {{ project_card(req) }} {% else %} {{ empty_state("Archive is empty.") }} {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

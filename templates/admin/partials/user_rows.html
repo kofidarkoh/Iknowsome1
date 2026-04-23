@@ -1,0 +1,39 @@
+{% for user in users %}
+<tr id="user-{{ user.id }}">
+    <td class="ps-4">
+        <div class="fw-bold text-dark">{{ user.username }}</div>
+        <div class="text-muted small">{{ user.email }}</div>
+    </td>
+    <td><span class="badge bg-light text-dark border">{{ user.role }}</span></td>
+    <td>
+        {% if user.full_verified %}
+            <span class="text-success small fw-bold">● Verified</span>
+        {% else %}
+            <span class="text-muted small">○ Pending</span>
+        {% endif %}
+    </td>
+    <td class="text-end pe-4">
+        <button class="btn btn-sm btn-light rounded-pill px-3" 
+                hx-get="{{ url_for('admin.get_edit_modal', user_id=user.id) }}" 
+                hx-target="#modal-content">Edit</button>
+        <button class="btn btn-sm btn-outline-danger rounded-circle"
+                hx-delete="{{ url_for('admin.delete_user', user_id=user.id) }}"
+                hx-target="#user-{{ user.id }}" hx-swap="outerHTML">
+            <i class="bi bi-trash"></i>
+        </button>
+    </td>
+</tr>
+{% endfor %}
+
+{% if has_more %}
+<tr id="replace-me">
+    <td colspan="4" class="text-center py-4">
+        <button class="btn btn-sm btn-outline-secondary rounded-pill px-4"
+                hx-get="{{ url_for('admin.user_management', page=page+1, search=search) }}"
+                hx-target="#replace-me"
+                hx-swap="outerHTML">
+            Load More Users
+        </button>
+    </td>
+</tr>
+{% endif %}

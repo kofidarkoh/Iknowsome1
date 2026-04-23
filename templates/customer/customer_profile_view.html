@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-5"> <div class="row g-4">
+
+        {% if current_user.role == 'pro' %} 
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include 'pro/_sidebar.html' %}
+        </div>
+        {% endif %}
+
+        <div class="col-lg-9 col-xl-10">
+            <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+                <div class="col-md-8 col-lg-6 col-xl-5">
+                    
+                    <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                        <div class="mb-4">
+                            <img src="https://ui-avatars.com/api/?name={{ customer.username }}&background=f8f9fa&color=fbbf24&size=128" 
+                                 class="rounded-circle shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+                        </div>
+                        
+                        <h2 class="fw-bold mb-1 text-dark">{{ customer.username }}</h2>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle rounded-pill px-3 mb-4">
+                            <i class="bi bi-shield-check me-1"></i> Verified Customer
+                        </span>
+                        
+                        <hr class="my-4 opacity-25">
+                        
+                        <div class="row text-start g-4">
+                            <div class="col-6">
+                                <small class="text-muted text-uppercase fw-bold x-small d-block mb-1" style="letter-spacing: 1px;">Member Since</small>
+                                <span class="fw-bold">{{ customer.created_at.strftime('%B %Y') }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted text-uppercase fw-bold x-small d-block mb-1" style="letter-spacing: 1px;">Status</small>
+                                <span class="text-success fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Active</span>
+                            </div>
+                        </div>
+
+                        <div class="mt-5 pt-3">
+                            <a href="javascript:history.back()" class="btn btn-dark w-100 rounded-pill py-3 fw-bold">
+                                <i class="bi bi-chat-left-text me-2"></i> Return to Chat
+                            </a>
+                        </div>
+                    </div>
+
+                    <p class="text-center text-muted mt-4 small">
+                        <i class="bi bi-info-circle me-1"></i> This is a private customer profile view.
+                    </p>
+                    
+                </div>
+            </div>
+        </div> </div>
+</div>
+{% endblock %}

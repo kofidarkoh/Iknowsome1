@@ -1,0 +1,49 @@
+{% for user in pending_users %}
+<tr id="kyc-row-{{ user.id }}">
+    <td class="ps-4">
+        <div class="fw-bold">{{ user.username }}</div>
+        <div class="text-muted small">{{ user.email }}</div>
+    </td>
+    <td>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('static', filename='uploads/' + (user.id_card_front or 'default_id.png')) }}" 
+               target="_blank" class="btn btn-sm btn-light border rounded-pill px-3">
+               <i class="bi bi-card-image text-primary me-1"></i> ID Card
+            </a>
+            <a href="{{ url_for('static', filename='uploads/' + (user.selfie_path or 'default_selfie.png')) }}" 
+               target="_blank" class="btn btn-sm btn-light border rounded-pill px-3">
+               <i class="bi bi-person-circle text-primary me-1"></i> Selfie
+            </a>
+        </div>
+    </td>
+    <td>
+        <span class="text-muted small">
+            {{ user.updated_at.strftime('%b %d, %H:%M') if user.updated_at else 'Recently' }}
+        </span>
+    </td>
+    <td class="text-end pe-4">
+        <button class="btn btn-success btn-sm rounded-pill px-3 me-1"
+                hx-post="{{ url_for('admin.approve_kyc', user_id=user.id) }}"
+                hx-target="#kyc-row-{{ user.id }}"
+                hx-swap="outerHTML swap:0.5s"
+                hx-confirm="Confirm approval for {{ user.username }}?">
+            <i class="bi bi-check-lg"></i>
+        </button>
+        
+        <button class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                hx-get="{{ url_for('admin.getkyc_reject_modal', user_id=user.id) }}"
+                hx-target="#modal-content">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </td>
+</tr>
+{% else %}
+<tr>
+    <td colspan="4" class="text-center py-5">
+        <div class="text-muted">
+            <i class="bi bi-inbox display-4 mb-3 d-block"></i>
+            <p class="mb-0">All caught up! No pending KYC requests.</p>
+        </div>
+    </td>
+</tr>
+{% endfor %}

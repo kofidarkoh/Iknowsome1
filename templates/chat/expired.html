@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center text-center">
+        <div class="col-md-6">
+            <div class="bg-danger-subtle d-inline-block p-4 rounded-circle mb-3">
+                <i class="bi bi-clock-history text-danger fs-1"></i>
+            </div>
+            <h2 class="fw-bold">Request Expired</h2>
+            <p class="text-secondary">
+                The Pro didn't respond to your inquiry within the 20-minute window. 
+                We've cancelled this request to save you time.
+            </p>
+
+            <div class="card border-0 bg-body-tertiary rounded-4 p-4 my-4">
+                <p class="small mb-0">Don't worry, there are other experts ready to help!</p>
+            </div>
+
+            <a href="{{ url_for('customer.explore') }}" class="btn btn-warning rounded-pill px-5 fw-bold shadow-sm">
+                Find Another Professional
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "admin/admin_base.html" %}
+{% block title %}KYC Approvals | Admin{% endblock %}
+{% block admin_content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h4 class="fw-bold mb-0">Identity Verifications</h4>
+            <p class="text-muted small">Review and approve user identity documents.</p>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="bg-light text-muted small fw-bold">
+                    <tr>
+                        <th class="ps-4 py-3">USER</th>
+                        <th>DOCUMENTS</th>
+                        <th>SUBMITTED</th>
+                        <th class="text-end pe-4">DECISION</th>
+                    </tr>
+                </thead>
+                <tbody id="kyc-list">
+                    {% include 'admin/partials/kyc_rows.html' %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div id="modal-container" class="modal fade" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered" id="modal-content"></div>
+</div>
+
+<script>
+    document.body.addEventListener('htmx:afterSwap', (e) => {
+        if (e.detail.target.id === "modal-content") {
+            new bootstrap.Modal('#modal-container').show();
+        }
+    });
+</script>
+{% endblock %}

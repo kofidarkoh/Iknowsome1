@@ -1,0 +1,182 @@
+{% extends "pro/pro_base.html" %}
+{% block content %}
+<div class="container py-4">
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1 text-dark">Account & Trust</h2>
+        <p class="text-muted">Verify your identity to increase your visibility to customers.</p>
+    </div>
+
+    {% include '_message.html' %}
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold mb-0">Verification Center</h5>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-warning bg-opacity-10 p-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                                <i class="bi bi-envelope-check fs-5 text-warning"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Email Verification</h6>
+                                <small class="text-muted d-block">{{ current_user.email }}</small>
+                            </div>
+                        </div>
+                        <div>
+                            {% if current_user.email_verified %}
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">
+                                <i class="bi bi-check-circle-fill me-1"></i> Verified
+                            </span>
+                            {% elif session.get('otp_data_' ~ current_user.id|string) %}
+                            <form action="{{ url_for('pro.settings') }}" method="POST" class="d-flex gap-2">
+                                <input type="hidden" name="action" value="verify_otp">
+                                <input type="text" name="otp_input" class="form-control form-control-sm rounded-pill bg-light border-0" placeholder="000000" maxlength="6" style="width: 100px;">
+                                <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">Verify</button>
+                            </form>
+                            {% else %}
+                            <form action="{{ url_for('pro.settings') }}" method="POST">
+                                <input type="hidden" name="action" value="send_otp">
+                                <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill px-3">Get Code</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 pb-3 border-bottom">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-info bg-opacity-10 p-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                                <i class="bi bi-phone fs-5 text-info"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Phone Verification</h6>
+                                <small class="text-muted d-block">{% if current_user.phone %}{{ current_user.phone }}{% else %}No number added{% endif %}</small>
+                            </div>
+                        </div>
+                        <div>
+                            {% if current_user.phone_verified %}
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">
+                                <i class="bi bi-shield-check-fill me-1"></i> Verified
+                            </span>
+                            {% else %}
+                                {% set phone_otp_key = 'phone_otp_' ~ current_user.id|string %}
+                                {% if session.get(phone_otp_key) %}
+                                <form action="{{ url_for('pro.settings') }}" method="POST" class="d-flex gap-2">
+                                    <input type="hidden" name="action" value="verify_phone_otp">
+                                    <input type="text" name="phone_otp_input" class="form-control form-control-sm rounded-pill bg-light border-0" placeholder="SMS Code" required style="width: 100px;">
+                                    <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">Verify</button>
+                                </form>
+                                {% else %}
+                                <form action="{{ url_for('pro.settings') }}" method="POST">
+                                    <input type="hidden" name="action" value="send_phone_otp">
+                                    <button type="submit" class="btn btn-outline-dark btn-sm rounded-pill px-3" {% if not current_user.phone %}disabled title="Add phone number below first" {% endif %}>Verify via SMS</button>
+                                </form>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-flex align-items-center justify-content-center" style="width: 52px; height: 52px;">
+                                <i class="bi bi-person-badge fs-5 text-primary"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-bold">Identity (KYC)</h6>
+                                <small class="text-muted d-block">Government ID review</small>
+                            </div>
+                        </div>
+                        <div>
+                            {% if current_user.kyc_status == 'verified' %}
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">
+                                <i class="bi bi-patch-check-fill me-1"></i> Verified
+                            </span>
+                            {% elif current_user.kyc_status == 'pending' %}
+                            <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2">
+                                <i class="bi bi-clock-history me-1"></i> Pending
+                            </span>
+                            {% else %}
+                            <form action="{{ url_for('pro.settings') }}" method="POST" enctype="multipart/form-data" class="d-flex gap-2">
+                                <input type="hidden" name="action" value="submit_kyc">
+                                <input type="file" name="kyc_doc" class="form-control form-control-sm" required style="max-width: 150px;">
+                                <button type="submit" class="btn btn-dark btn-sm rounded-pill px-3">Upload</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h5 class="fw-bold mb-0">Contact Information</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ url_for('pro.settings') }}" method="POST">
+                        <input type="hidden" name="action" value="update_profile">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold small">Phone Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-0"><i class="bi bi-telephone text-secondary"></i></span>
+                                <input type="text" name="phone" class="form-control bg-light border-0" value="{{ current_user.phone or '' }}" placeholder="e.g. 0540000000">
+                            </div>
+                            <div class="form-text small">Add your phone number to receive MoMo payments.</div>
+                        </div>
+                        <button type="submit" class="btn btn-dark rounded-pill px-4">Update Profile</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4 text-center">
+                    <div class="rounded-circle bg-primary bg-opacity-10 p-3 d-inline-flex mb-3">
+                        <i class="bi bi-eye fs-4 text-primary"></i>
+                    </div>
+                    <h6 class="fw-bold">Profile Visibility</h6>
+                    <div class="form-check form-switch d-inline-block mb-3">
+                        <input class="form-check-input" type="checkbox" id="visibilityToggle" checked style="width: 50px; height: 25px;">
+                    </div>
+                    <p class="text-muted small mb-0">Appear in search results for new clients.</p>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3"><i class="bi bi-bell me-2"></i>Notifications</h6>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="jobAlerts" checked>
+                        <label class="form-check-label small" for="jobAlerts">Job Alerts</label>
+                    </div>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="chatMessages" checked>
+                        <label class="form-check-label small" for="chatMessages">Messages</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-danger bg-danger bg-opacity-10 rounded-4">
+                <div class="card-body p-4 text-center">
+                    <h6 class="fw-bold text-danger mb-2">Danger Zone</h6>
+                    <p class="x-small text-danger mb-3">Deleting your account is permanent.</p>
+                    <button class="btn btn-outline-danger btn-sm w-100 rounded-pill" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete Account</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+<style>
+    .x-small { font-size: 0.75rem; }
+    .rounded-4 { border-radius: 1rem !important; }
+    .bg-opacity-10 { --bs-bg-opacity: 0.1; }
+    .card { transition: all 0.3s ease; }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important; }
+    .form-check-input:checked { background-color: #fbbf24; border-color: #fbbf24; }
+</style>

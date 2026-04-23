@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}IknowSome1{% endblock %}</title>
+    {% if config['DEBUG'] %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap-icons.css') }}">
+    {% else %}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    {% endif %}
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --primary-gold: #fbbf24; 
+            --soft-bg: #f8f9fa;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #ffffff; 
+            color: #212529;
+        }
+
+        /* Enhanced Navbar */
+        .navbar { 
+            background: rgba(255, 255, 255, 0.95) !important; 
+            backdrop-filter: blur(10px);
+            box-shadow: 0 1px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+
+        .nav-link { 
+            font-weight: 500; 
+            color: #4b5563 !important;
+            transition: all 0.2s ease; 
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Space between icon and text */
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+        }
+
+        .nav-link i {
+            font-size: 1.1rem;
+            transition: transform 0.2s ease;
+        }
+
+        .nav-link:hover { 
+            color: #1a1a1a !important; 
+            background: rgba(251, 191, 36, 0.1); /* Very subtle gold tint */
+        }
+
+        .nav-link:hover i {
+            transform: translateY(-1px);
+        }
+
+        /* Notification Badge - Refined Gold Dot */
+        .notif-wrapper { position: relative; }
+        .notif-badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            background-color: var(--primary-gold);
+            color: #000;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            font-size: 0.65rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-size: 1.4rem;
+            letter-spacing: -0.5px;
+        }
+
+        main { min-height: 80vh; }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-dark" href="{% if current_user.role =='pro'%} {{ url_for('pro.dashboard')}} {% elif current_user.role =='customer'%} {{ url_for('customer.dashboard')}} {% else %} {{ url_for('home') }} {% endif %}">
+                <i class="bi bi-shield-check text-warning"></i> Iknowsome1
+            </a>
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navContent">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'pro' %}
+                    <li class="nav-item me-lg-3">
+                        <span class="text-secondary small d-flex align-items-center gap-2">
+                            <i class="bi bi-person-circle fs-5"></i>
+                            Hello, <strong>{{ current_user.username }}</strong>
+                        </span>
+                    </li>
+                    {% endif %}
+                    
+                    {% if current_user.role == 'customer' %}
+                    <li class="nav-item">
+                        <a class="nav-link px-lg-3" href="{{ url_for('customer.explore') }}">
+                            <i class="bi bi-compass"></i> Explore
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-lg-3 notif-wrapper" href="{{ url_for('customer.my_requests') }}">
+                            <i class="bi bi-briefcase"></i> My Requests
+                            {% if notif_count > 0 %}
+                            <span class="notif-badge">{{ notif_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a class="nav-link px-lg-3" href="{{ url_for('customer.wallet') }}">
+                            <i class="bi bi-wallet2"></i> Wallet
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link px-lg-3" href="{{ url_for('customer.settings') }}">
+                            <i class="bi bi-gear"></i> Account
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-3 mt-3 mt-lg-0">
+                        <a class="btn btn-outline-danger btn-sm rounded-pill px-4 w-100 fw-medium d-flex align-items-center justify-content-center gap-2" href="{{ url_for('auth.logout') }}">
+                            <i class="bi bi-box-arrow-left"></i> Logout
+                        </a>
+                    </li>
+                    
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link px-lg-3" href="{{ url_for('auth.login') }}">
+                            <i class="bi bi-door-open"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item ms-lg-2 mt-3 mt-lg-0">
+                        <a class="btn btn-warning btn-sm fw-bold rounded-pill px-4 w-100 shadow-sm d-flex align-items-center justify-content-center gap-2" href="{{ url_for('auth.register') }}">
+                            Join Now
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="py-5 mt-5 bg-light border-top text-center text-secondary small">
+        <div class="container">
+            <div class="mb-2">
+                <a href="{{ url_for('about') }}" class="text-decoration-none text-secondary mx-2">About</a>
+                <a href="#" class="text-decoration-none text-secondary mx-2">Privacy</a>
+                <a href="#" class="text-decoration-none text-secondary mx-2">Terms</a>
+            </div>
+            &copy; 2026 Iknowsome1 Ghana. Professional Workspace.
+        </div>
+    </footer>
+    
+    <script>
+    (function() {
+        {% if current_user.is_authenticated %}
+            function sendHeartbeat() {
+                fetch('/heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin'
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    return response.json();
+                })
+                .catch(error => console.error('Heartbeat failed:', error));
+            }
+            sendHeartbeat();
+            setInterval(sendHeartbeat, 15000);
+        {% endif %}
+    })();
+    </script>
+    
+    {% if config['DEBUG'] %}
+    <script src="{{ url_for('static', filename='js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/htmx.min.js') }}"></script>
+    {% else %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    {% endif %}
+</body>
+
+</html>

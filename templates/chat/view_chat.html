@@ -1,0 +1,261 @@
+{% if current_user.role == 'pro' %}
+{% extends "pro/pro_base.html" %}
+{% else %}
+{% extends "base.html" %}
+{% endif %}
+
+{% block content %}
+<style>
+    /* Modern Soft-UI Refinements */
+    :root {
+        --chat-bg: #ffffff;
+        --soft-gray: #f9fafb;
+        --border-color: #f1f3f5;
+        --accent-yellow: #fbbf24;
+    }
+
+    .chat-container { 
+        height: calc(100vh - 220px); 
+        background: var(--chat-bg); 
+        display: flex; 
+        flex-direction: column; 
+        border-radius: 20px; 
+        overflow: hidden; 
+        border: 1px solid var(--border-color);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    }
+
+    .chat-wrapper-customer { max-width: 850px; margin: 0 auto; }
+
+    .message-list { 
+        flex-grow: 1; 
+        overflow-y: auto; 
+        padding: 20px; 
+        display: flex; 
+        flex-direction: column; 
+        gap: 8px;
+        background-color: #fff;
+    }
+
+    .msg { 
+        max-width: 75%; 
+        padding: 10px 16px; 
+        font-size: 0.9rem; 
+        line-height: 1.45; 
+        position: relative; 
+        word-wrap: break-word; 
+        white-space: pre-wrap; 
+        animation: fadeIn 0.25s ease-out; 
+        display: flex; 
+        flex-direction: column; 
+    }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .msg-sent { 
+        background: #1a1a1a; 
+        color: #ffffff; 
+        align-self: flex-end; 
+        border-radius: 18px 18px 4px 18px; 
+        margin-left: auto; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .msg-received { 
+        background: var(--soft-gray); 
+        color: #1f2937; 
+        align-self: flex-start; 
+        border-radius: 18px 18px 18px 4px; 
+        border: 1px solid var(--border-color); 
+        margin-right: auto; 
+    }
+
+    .timestamp { font-size: 0.65rem; margin-top: 5px; opacity: 0.5; font-weight: 600; }
+    .msg-sent .timestamp { color: #d1d5db; }
+
+    .chat-input-area { padding: 16px 24px; background: #ffffff; border-top: 1px solid var(--border-color); }
+
+    .input-wrapper { 
+        background: var(--soft-gray); 
+        padding: 6px 6px 6px 20px; 
+        border-radius: 24px; 
+        display: flex; 
+        align-items: center; 
+        gap: 8px; 
+        border: 1px solid var(--border-color); 
+        transition: border-color 0.2s;
+    }
+    
+    .input-wrapper:focus-within { border-color: var(--accent-yellow); }
+
+    .send-btn { 
+        width: 38px; 
+        height: 38px; 
+        border-radius: 50%; 
+        background: var(--accent-yellow); 
+        border: none; 
+        color: #000; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 10px rgba(251, 191, 36, 0.3);
+    }
+
+    .send-btn:hover { transform: scale(1.05); background: #f59e0b; }
+
+    .quote-banner { 
+        background: #fffbeb; 
+        border-radius: 16px; 
+        margin-bottom: 15px; 
+        border: 1px solid #fde68a; 
+        box-shadow: 0 4px 15px rgba(253, 230, 138, 0.2);
+    }
+
+    .system-msg { 
+        align-self: center; 
+        background: var(--soft-gray); 
+        color: #9ca3af; 
+        font-size: 0.7rem; 
+        padding: 5px 14px; 
+        border-radius: 12px; 
+        margin: 15px 0; 
+        font-weight: 700; 
+        text-transform: uppercase; 
+        letter-spacing: 0.8px; 
+    }
+
+    .x-small { font-size: 0.7rem; font-weight: 600; }
+    .fw-black { font-weight: 900; }
+</style>
+
+<div class="container-fluid {% if current_user.role != 'pro' %}py-4 chat-wrapper-customer{% endif %}">
+    {% include '_message.html' %}
+    
+    <div class="d-flex align-items-center justify-content-between mb-3 px-2">
+        <div class="d-flex align-items-center gap-3">
+            <a href="javascript:history.back()" class="btn btn-light btn-sm rounded-circle shadow-sm"><i class="bi bi-chevron-left"></i></a>
+            {% set display_user = job.customer if (job and current_user.role == 'pro') else (job.pro if job else other_user) %}
+            <img src="{% if display_user.profile_pic %}{{ url_for('static', filename='uploads/' + display_user.profile_pic) }}{% else %}https://ui-avatars.com/api/?name={{ display_user.username }}&background=f3f4f6&color=111&rounded=true{% endif %}" class="rounded-circle border shadow-sm" style="width: 42px; height: 42px; object-fit: cover;">
+            <div>
+                <h6 class="fw-black text-dark mb-0" style="font-size: 0.95rem;">{{ display_user.username }}</h6>
+                <small class="text-muted d-flex align-items-center" style="font-size: 0.7rem;">
+                    {% if display_user.is_online() %}
+                    <span class="text-success fw-bold"><i class="bi bi-circle-fill me-1" style="font-size: 0.4rem;"></i> Online</span>
+                    {% else %}
+                    Active {{ display_user.last_active.strftime('%H:%M') }}
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+        <span class="badge {% if job and job.status == 'hired' %}bg-success{% else %}bg-dark{% endif %} rounded-pill px-3 py-2 x-small">
+            {{ (job.status|upper) if job else "STARTING" }}
+        </span>
+    </div>
+
+    {% if job %}
+    <div class="quote-banner p-3">
+        {% if current_user.role == 'pro' and job.status == 'chatting' %}
+        <form action="{{ url_for('pro.set_quote', job_id=job.id) }}" method="POST" class="row g-2 align-items-center">
+            <div class="col-auto"><span class="x-small text-dark text-uppercase">Project Quote:</span></div>
+            <div class="col"><input type="text" name="title" class="form-control form-control-sm border-0 rounded-3 shadow-sm" placeholder="Title" required></div>
+            <div class="col-auto">
+                <div class="input-group input-group-sm rounded-3 shadow-sm overflow-hidden">
+                    <span class="input-group-text bg-white border-0 fw-bold">₵</span>
+                    <input type="number" name="amount" class="form-control border-0 fw-bold" style="width: 80px;" required>
+                </div>
+            </div>
+            <div class="col-auto"><button type="submit" class="btn btn-warning btn-sm fw-black rounded-pill px-3 shadow-sm">Send</button></div>
+        </form>
+
+        {% elif current_user.role == 'customer' and job.status == 'quoted' %}
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <span class="x-small text-muted d-block uppercase fw-bold">Project: {{ job.title }}</span>
+                <span class="fw-black text-success fs-5">₵{{ "{:,.2f}".format(job.total_amount) }}</span>
+            </div>
+            <div class="text-end">
+                <form action="{{ url_for('customer.pay_from_wallet', job_id=job.id) }}" method="POST">
+                    <button type="submit" class="btn btn-dark btn-sm rounded-pill px-4 fw-black shadow-sm" {% if current_user.balance < job.total_amount %}disabled{% endif %}>
+                        Pay Now
+                    </button>
+                </form>
+                {% if current_user.balance < job.total_amount %}
+                    <span class="x-small text-danger fw-bold">Insufficient Funds</span>
+                {% endif %}
+            </div>
+        </div>
+
+        {% elif job.status == 'hired' %}
+        <div class="d-flex align-items-center justify-content-between">
+            <div>
+                <span class="text-success x-small fw-bold text-uppercase"><i class="bi bi-shield-lock-fill me-1"></i> Escrow Secured</span>
+                <p class="x-small mb-0 text-muted">₵{{ "{:,.2f}".format(job.total_amount) }} held safely.</p>
+            </div>
+            {% if current_user.role == 'customer' %}
+            <form action="{{ url_for('customer.complete_job', job_id=job.id) }}" method="POST" onsubmit="return confirm('Release payment?');">
+                <button type="submit" class="btn btn-success btn-sm rounded-pill px-3 fw-black shadow-sm">Release Funds</button>
+            </form>
+            {% endif %}
+        </div>
+        
+        {% elif job.status == 'completed' %}
+            {% set existing_review = job.review.get() if job.review.exists() else None %}
+            <div class="text-center">
+                {% if not existing_review %}
+                    {% if current_user.role == 'customer' %}
+                        <p class="x-small fw-bold text-dark mb-2">How was the service?</p>
+                        <form action="{{ url_for('customer.review_pro', job_id=job.id) }}" method="POST" class="d-flex align-items-center justify-content-center gap-2">
+                            <input type="number" name="rating" min="1" max="5" class="form-control form-control-sm text-center fw-bold rounded-3" style="width: 50px;" placeholder="5" required>
+                            <input type="text" name="comment" class="form-control form-control-sm rounded-3" placeholder="Short review...">
+                            <button type="submit" class="btn btn-dark btn-sm rounded-pill fw-black px-3">Review</button>
+                        </form>
+                    {% else %}
+                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 x-small"><i class="bi bi-check-circle-fill me-1"></i> Job Complete</span>
+                    {% endif %}
+                {% else %}
+                    <div class="x-small">
+                        <span class="text-warning fw-bold">Rating: {{ existing_review.rating }}/5</span>
+                        <p class="mb-0 italic text-muted">"{{ existing_review.comment }}"</p>
+                    </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="chat-container">
+        <div class="message-list" id="messageDisplay">
+            {% if not messages %}
+                <div class="system-msg mt-5">Start your conversation</div>
+            {% endif %}
+            {% for msg in messages %}
+            <div class="msg {% if msg.sender == current_user %}msg-sent{% else %}msg-received{% endif %}">{{ msg.content }}
+                <span class="timestamp">{{ msg.timestamp.strftime('%I:%M %p') }}</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="chat-input-area">
+            {% set is_locked = job and job.status == 'completed' and job.review.exists() %}
+            {% if is_locked %}
+                <div class="text-center py-2 bg-light rounded-4">
+                    <span class="text-muted x-small fw-bold"><i class="bi bi-lock-fill me-1"></i> Conversation Closed</span>
+                </div>
+            {% else %}
+                <form action="{% if is_new %}{{ url_for('chat.send_message', target_id=other_user.id, new='true') }}{% else %}{{ url_for('chat.send_message', target_id=job.id) }}{% endif %}" method="POST" class="input-wrapper">
+                    <input type="text" name="content" class="form-control border-0 bg-transparent shadow-none small" placeholder="Write message..." required autocomplete="off">
+                    <button type="submit" class="send-btn">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const objDiv = document.getElementById("messageDisplay");
+    objDiv.scrollTop = objDiv.scrollHeight;
+</script>
+{% endblock %}

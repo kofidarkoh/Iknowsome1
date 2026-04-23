@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <!-- Add this to your <head> if not already there -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #fcfcfd; height: 100vh; display: flex; align-items: center; justify-content: center; font-family: 'Inter', sans-serif; }
+        .login-box { 
+            width: 100%; 
+            max-width: 400px; 
+            background: #fff; 
+            padding: 40px; 
+            border-radius: 24px; 
+            border: 1px solid #eee;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+        }
+        .form-control { 
+            background: #f8f9fa; 
+            border: 1px solid #edf2f7; 
+            padding: 12px 15px; 
+            border-radius: 12px; 
+        }
+        .form-control:focus {
+            background: #fff;
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.1);
+        }
+        .btn-dark-admin {
+            background: #1a1a1a;
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s;
+        }
+        .btn-dark-admin:hover { opacity: 0.9; transform: translateY(-1px); }
+    </style>
+</head>
+<body>
+
+<div class="login-box text-center">
+    <div class="mb-4">
+        <div class="bg-warning d-inline-block rounded-4 p-3 mb-3">
+            <i class="bi bi-shield-lock-fill fs-3"></i>
+        </div>
+        <h4 class="fw-bold">Terminal Entry</h4>
+        <p class="text-muted small">Access restricted to platform managers</p>
+    </div>
+
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-danger py-2 small">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('admin.login') }}" method="POST">
+    <!-- Email field -->
+<div class="text-start mb-3">
+    <label class="small fw-bold mb-2">EMAIL</label>
+    <div class="position-relative">
+        <i class="bi bi-envelope position-absolute" style="left:13px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:15px;"></i>
+        <input type="email" name="email" class="form-control ps-5" required>
+    </div>
+</div>
+
+<!-- Password field -->
+<div class="text-start mb-4">
+    <label class="small fw-bold mb-2">PASSWORD</label>
+    <div class="position-relative">
+        <i class="bi bi-key position-absolute" style="left:13px; top:50%; transform:translateY(-50%); color:#9ca3af; font-size:15px;"></i>
+        <input type="password" name="password" class="form-control ps-5" required>
+    </div>
+</div>
+
+<!-- Button -->
+<button type="submit" class="btn-dark-admin d-flex align-items-center justify-content-center gap-2">
+    <i class="bi bi-box-arrow-in-right"></i>
+    Authenticate Account
+</button>
+    </form>
+</div>
+
+</body>
+</html>

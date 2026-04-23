@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Client Inquiries | IknowSomeOne{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        
+        <div class="col-lg-3 col-xl-2 d-none d-lg-block">
+            {% include 'pro/_sidebar.html' %}
+        </div>
+
+        <div class="col-lg-9 col-xl-10">
+            <div class="mb-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <h2 class="fw-bold text-dark mb-1">Inquiries</h2>
+                    <p class="text-secondary small">Manage incoming project requests and client conversations.</p>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-white border rounded-pill px-3 py-2 shadow-sm dropdown-toggle small fw-bold" type="button" data-bs-toggle="dropdown">
+                        Filter: All Requests
+                    </button>
+                    <ul class="dropdown-menu shadow-sm border-0 rounded-3">
+                        <li><a class="dropdown-item small" href="#">Latest First</a></li>
+                        <li><a class="dropdown-item small" href="#">Unread Only</a></li>
+                        <li><a class="dropdown-item small" href="#">Price Set</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row g-3">
+                {% for req in inquiries %}
+                <div class="col-12">
+                    <div class="card border-0 shadow-sm rounded-4 hover-shadow transition-all">
+                        <div class="card-body p-4">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="position-relative">
+                                        <img src="{{ url_for('static', filename='uploads/' + req.customer.profile_pic) if req.customer.profile_pic else 'https://ui-avatars.com/api/?name=' + req.customer.username }}" 
+                                             class="rounded-circle border" width="55" height="55" style="object-fit: cover;">
+                                        {% if req.unread_msg_count(current_user) > 0 %}
+                                            <span class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-2 border-white rounded-circle">
+                                                <span class="visually-hidden">New Message</span>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="col">
+                                    <div class="d-flex align-items-center mb-1">
+                                        <h6 class="fw-bold mb-0 me-2">{{ req.title }}</h6>
+                                        {% if req.unread_msg_count(current_user) > 0 %}
+                                            <span class="badge bg-warning-subtle text-warning x-small fw-bold">NEW MESSAGE</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-secondary small mb-0">
+                                        From <span class="fw-bold text-dark">{{ req.customer.username }}</span> 
+                                        &bull; {{ req.created_at.strftime('%d %b, %Y') }}
+                                    </p>
+                                </div>
+
+                                <div class="col-md-2 text-md-center mt-3 mt-md-0">
+                                    <p class="text-secondary x-small fw-bold text-uppercase mb-1" style="letter-spacing: 0.5px;">Price Quote</p>
+                                    {% if req.total_amount > 0 %}
+                                        <h6 class="fw-bold text-dark mb-0">₵{{ "{:,.2f}".format(req.total_amount) }}</h6>
+                                    {% else %}
+                                        <span class="text-muted small">Not Set</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-md-2 text-end mt-3 mt-md-0">
+                                    <a href="{{ url_for('chat.view_chat', job_id=req.id) }}" class="btn btn-dark rounded-pill px-4 btn-sm fw-bold">
+                                        View Chat
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+                        <i class="bi bi-chat-dots fs-1 text-light mb-3 d-block"></i>
+                        <h5 class="text-dark fw-bold">No inquiries yet</h5>
+                        <p class="text-secondary small">New client requests will appear here as soon as they reach out.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .x-small { font-size: 0.65rem; }
+    .bg-warning-subtle { background-color: #fffbeb !important; color: #d97706 !important; }
+    .hover-shadow:hover { transform: translateY(-2px); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important; }
+    .transition-all { transition: all 0.2s ease-in-out; }
+</style>
+{% endblock %}
