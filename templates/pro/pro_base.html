@@ -23,7 +23,6 @@
         font-family: 'Inter', sans-serif;
         background-color: #f8f9fa;
         overflow: hidden;
-        /* Prevents body from scrolling, only main content area scrolls */
     }
 
     /* Fixed Side Sidebar */
@@ -36,7 +35,7 @@
         background: #ffffff;
         border-right: 1px solid #e5e7eb;
         z-index: 1030;
-        transition: all 0.3s;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* Top Navbar for Pro */
@@ -71,6 +70,7 @@
 
         .pro-sidebar.show {
             margin-left: 0;
+            box-shadow: 15px 0 30px rgba(0,0,0,0.1);
         }
 
         .pro-top-nav {
@@ -83,7 +83,6 @@
         }
     }
 
-    /* Reusing your sidebar styles */
     .sidebar-link {
         display: flex;
         align-items: center;
@@ -119,12 +118,20 @@
 </head>
 
 <body>
+
     <aside class="pro-sidebar" id="proSidebar">
-        <div class="p-4">
+        <div class="p-4 d-flex justify-content-between align-items-center">
             <a class="navbar-brand fw-bold fs-4 text-dark text-decoration-none" href="{{ url_for('pro.dashboard') }}">
                 <i class="bi bi-shield-check text-warning"></i> Iknowsome1
             </a>
+            
+            <button class="btn btn-light d-lg-none border-0 rounded-circle" 
+                    onclick="document.getElementById('proSidebar').classList.remove('show')"
+                    style="width: 38px; height: 38px;">
+                <i class="bi bi-x-lg"></i>
+            </button>
         </div>
+
         <nav class="mt-2">
             <h6 class="text-uppercase fw-bold x-small text-secondary px-4 mb-3 opacity-50" style="font-size: 0.65rem;">Workspace</h6>
             <a href="{{ url_for('pro.dashboard') }}" class="sidebar-link {% if request.endpoint == 'pro.dashboard' %}active{% endif %}">
@@ -141,15 +148,17 @@
             <a href="{{ url_for('pro.portfolio') }}" class="sidebar-link {% if request.endpoint == 'pro.portfolio' %}active{% endif %}">
                 <i class="bi bi-images"></i> Portfolio
             </a>
+            
             <hr class="mx-4 my-4 opacity-50">
+            
             <h6 class="text-uppercase fw-bold x-small text-secondary px-4 mb-3 opacity-50" style="font-size: 0.65rem;">Account</h6>
             <a href="{{ url_for('pro.wallet_view') }}" class="sidebar-link {% if request.endpoint == 'pro.wallet_view' %}active{% endif %}">
-                <i class="bi bi-wallet2"></i> Wallet</a>
-                <a href="{{ url_for('pro.profile_setup') }}" class="sidebar-link {% if request.endpoint == 'pro.profile_setup' %}active{% endif %}">
+                <i class="bi bi-wallet2"></i> Wallet
+            </a>
+            <a href="{{ url_for('pro.profile_setup') }}" class="sidebar-link {% if request.endpoint == 'pro.profile_setup' %}active{% endif %}">
                 <i class="bi bi-person-circle"></i> Account
             </a>
-            </a>
-             <a href="{{ url_for('pro.settings') }}" class="sidebar-link {% if request.endpoint == 'pro.settings' %}active{% endif %}">
+            <a href="{{ url_for('pro.settings') }}" class="sidebar-link {% if request.endpoint == 'pro.settings' %}active{% endif %}">
                 <i class="bi bi-gear"></i> Settings
             </a>
             <a href="{{ url_for('auth.logout') }}" class="sidebar-link text-danger">
@@ -157,61 +166,41 @@
             </a>
         </nav>
     </aside>
+
     <header class="pro-top-nav d-flex justify-content-between align-items-center">
-        <button class="btn btn-light d-lg-none" onclick="document.getElementById('proSidebar').classList.toggle('show')">
+        <button class="btn btn-light d-lg-none border-0" onclick="document.getElementById('proSidebar').classList.add('show')">
             <i class="bi bi-list fs-4"></i>
         </button>
+
         <div class="ms-auto d-flex align-items-center">
             <div class="text-end me-3 d-none d-sm-block">
                 <div class="fw-bold small">{{ current_user.username }}</div>
                 <div class="{% if current_user.full_verified %} text-warning {% else %}text-danger {% endif %}" style="font-size: 0.7rem;">Professional Mode</div>
             </div>
             <a href="{{ url_for('pro.view_profile', user_id=current_user.public_id) }}">
-                <img src="{% if current_user.profile_pic %}{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}{% else %}https://ui-avatars.com/api/?name={{ current_user.username }}&background=fbbf24&color=000{% endif %}" class="rounded-circle border" width="40" height="40" style="object-fit: cover;">
+                <img src="{% if current_user.profile_pic %}{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}{% else %}https://ui-avatars.com/api/?name={{ current_user.username }}&background=fbbf24&color=000{% endif %}" 
+                     class="rounded-circle border" width="40" height="40" style="object-fit: cover;">
             </a>
         </div>
     </header>
+
     <main class="pro-main-content">
         {% block content %}{% endblock %}
     </main>
     
     <script>
-    // Heartbeat functionality - Fixed
     (function() {
-        // Check if user is authenticated
         {% if current_user.is_authenticated %}
-            console.log('Heartbeat started for user: {{ current_user.username }}');
-            
             function sendHeartbeat() {
                 fetch('/heartbeat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'same-origin'  // Important: sends session cookie
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin'
                 })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.status === 'ok') {
-                        console.log('Heartbeat sent at:', new Date().toLocaleTimeString());
-                    } else {
-                        console.warn('Heartbeat response:', data);
-                    }
-                })
-                .catch(error => {
-                    console.error('Heartbeat failed:', error);
-                });
+                .then(response => response.json())
+                .catch(err => console.error('Heartbeat fail:', err));
             }
-            
-            // Send heartbeat immediately when page loads
             sendHeartbeat();
-            
-            // Then send every 15 seconds
             setInterval(sendHeartbeat, 15000);
         {% endif %}
     })();
@@ -225,5 +214,4 @@
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     {% endif %}
 </body>
-
 </html>
