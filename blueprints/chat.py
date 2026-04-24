@@ -1,4 +1,4 @@
-import datetime
+import datetime, uuid
 from flask import Blueprint, request, redirect, url_for, render_template, abort
 from flask_login import current_user, login_required
 from models import Message, JobRequest, User
@@ -7,14 +7,16 @@ from iknow_utils import role_required
 chat_bp = Blueprint('chat', __name__)
 
 
-@chat_bp.route('/new/<int:pro_id>')
+@chat_bp.route('/new/<string:pro_id>')
 @login_required
 def new_chat(pro_id):
-    pro = User.get_by_id(pro_id)
+    pro = User.get_or_none(User.public_id == pro_id)
+    if not pro:
+        abort(403)
     # We pass 'job=None' so the template knows it's a fresh start
     return render_template('chat/view_chat.html', job=None, other_user=pro, is_new=True)
 
-@chat_bp.route('/send/<int:target_id>', methods=['POST'])
+@chat_bp.route('/send/<string:target_id>', methods=['POST'])
 @login_required
 def send_message(target_id):
     content = request.form.get('content')
@@ -25,8 +27,9 @@ def send_message(target_id):
     # We check if we are coming from a 'new_chat' or an existing 'view_chat'
 
     try:
-        job = JobRequest.get_by_id(target_id)
-        
+        job = JobRequest.get_or_none(JobRequest.public_id == target_id)
+        if not job:
+            abort(404)
         # BLOCKER: Check if the job is closed (Completed + Reviewed)
         if job.status == 'completed' and job.review.exists():
             flash("This conversation is closed.", "warning")
@@ -45,6 +48,7 @@ def send_message(target_id):
             title=f"Project with {pro.username}",
             description="Discussion started.",
             status='chatting',
+            public_id = uuid.uuid4(),
             total_amount=0
         )
     else:
@@ -63,13 +67,13 @@ def send_message(target_id):
     
     return redirect(url_for('chat.view_chat', job_id=job.id))
 
-@chat_bp.route('/view/<int:job_id>')
+@chat_bp.route('/view/<string:job_id>')
 @login_required
 def view_chat(job_id):
     try:
-        job = JobRequest.get_by_id(job_id)
-        
-        # Security Check
+        job = JobRequest.get_or_none(JobRequest.public_id == job_id)
+        if not job:
+            abort(404)
         if current_user != job.pro and current_user != job.customer:
             abort(403)
 

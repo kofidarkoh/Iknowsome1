@@ -1,7 +1,7 @@
 import os, random
 import requests
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, session
+from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app, session, abort
 from flask_login import login_required, current_user
 from iknow_utils import get_by_id_or_404, role_required
 from flask_mail import Mail
@@ -72,15 +72,17 @@ def my_requests():
     return render_template('customer/my_requests.html', requests=requests)
 
 
-@customer_bp.route('/hire/<int:pro_id>', methods=['GET'])
+@customer_bp.route('/hire/<string:pro_id>', methods=['GET'])
 @login_required
+@role_required('customer')
 def hire_pro(pro_id):
     if not current_user.full_verified:
         flash("Please verify your email address to message professionals.", "warning")
         return redirect(url_for('customer.dashboard'))
 
-    pro = User.get_by_id(pro_id)
-
+    pro = User.get_or_none(User.public_id == pro_id)
+    if not pro:
+        abort(404)
     # 1. Look for an existing conversation
     job = JobRequest.select().where(
     (JobRequest.customer == current_user) & 
@@ -96,6 +98,7 @@ def hire_pro(pro_id):
 
 @customer_bp.route('/checkout/<int:job_id>')
 @login_required
+@role_required('customer')
 def checkout(job_id):
     job = JobRequest.get_by_id(job_id)
     
@@ -141,7 +144,7 @@ def complete_job(job_id):
             pro.save()
 
             # 3. Log transaction for Pro
-            Transaction.create(user=pro, amount=job.total_amount, t_type='release')
+            Transaction.create(user=pro, amount=job.total_amount, t_type='release',transaction_hash  = uuid.uuid4())
 
             flash("Project completed. Funds released to the pro!", "success")
         except Exception as e:
@@ -175,7 +178,7 @@ def pay_from_wallet(job_id):
             job.save()
 
             # 3. Log the transaction
-            Transaction.create(user=current_user, amount=-job.total_amount, t_type='payment')
+            Transaction.create(user=current_user, amount=-job.total_amount,transaction_hash = uuid.uuid4(), t_type='payment')
             
             flash("Payment successful! Funds held in escrow.", "success")
         except Exception as e:
@@ -239,10 +242,13 @@ def view_customer_profile(user_id):
     return render_template('customer/customer_profile_view.html', customer=customer)
 
 
-@customer_bp.route('/pro/<int:pro_id>')
+@customer_bp.route('/pro/<string:pro_id>')
 @login_required
+@role_required('customer')
 def view_pro_profile(pro_id):
-    pro = get_by_id_or_404(User, pro_id)
+    pro = User.get_or_none(User.public_id == pro_id)
+    if not pro:
+        abort(404)
     gallery = GalleryImage.select().where(GalleryImage.user == pro)
     
     # Get all reviews for this pro

@@ -1,5 +1,5 @@
 from functools import wraps
-import datetime
+import datetime, uuid
 from flask import Flask, render_template,request, abort, session, url_for,jsonify
 from flask_login import LoginManager,current_user, login_required
 from blueprints.auth import auth_bp
@@ -41,7 +41,18 @@ login_manager.login_view = 'auth.login'
 def load_user(user_id):
     return User.get_or_none(User.id == user_id)
 
+def backfill_uuids():
+    with db.atomic():
+        print("Starting UUID backfill...")
+        for user in User.select():
+            new_uuid = uuid.uuid4()
+            # We use .update() to be direct and bypass any logic that might trigger errors
+            JobRequest.update(public_id=new_uuid).where(user.id == user.id).execute()
+            print(f"User {user.username} updated with unique ID: {new_uuid}")
+    print("Backfill complete! All users now have unique UUIDs.")
 
+# Call the function
+# backfill_uuids()
 
 @app.before_request
 def update_user_activity():

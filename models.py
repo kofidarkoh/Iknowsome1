@@ -1,3 +1,4 @@
+import uuid
 from peewee import *
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -29,7 +30,7 @@ class User(UserMixin, Model):
     email_verified = BooleanField(default=False)
     kyc_status = CharField(default='unverified')
     password = CharField()
-    bio = TextField(unique=True)
+    bio = TextField(null = True)
     role = CharField(default='customer') # admin, pro, customer
     last_active = DateTimeField(default=datetime.datetime.now)
     balance = DecimalField(default=0.00, max_digits=10, decimal_places=2)
@@ -43,6 +44,7 @@ class User(UserMixin, Model):
     profile_pic = CharField(default='default_pro.png')
     full_verified = BooleanField(default=False) # The "Gold Shield" badge
     base_rate = DecimalField(decimal_places=2, null=True) # Starting price in GHS
+    public_id = UUIDField(null = True)
     
     created_at = DateTimeField(default=datetime.datetime.now)
 
@@ -87,6 +89,7 @@ class JobRequest(Model):
     customer = ForeignKeyField(User, backref='requests_made')
     pro = ForeignKeyField(User, backref='requests_received')
     title = TextField()
+    public_id = UUIDField(default = uuid.uuid4())
     description = TextField(null = True)
     # Financial Fields
     total_amount = DecimalField(max_digits=10, decimal_places=2, default=0.00) 
@@ -116,6 +119,7 @@ class JobRequest(Model):
 class Transaction(Model):
     user = ForeignKeyField(User, backref='transactions')
     amount = FloatField()
+    transaction_hash = UUIDField(null=True)
     t_type = CharField() # 'deposit', 'withdraw', 'payment'
     status = CharField(default='completed') # 'pending', 'completed'
     momo_number = CharField(null=True)
@@ -130,7 +134,7 @@ class Review(Model):
     job = ForeignKeyField(JobRequest, backref='review', unique=True)
     customer = ForeignKeyField(User, backref='reviews_given')
     pro = ForeignKeyField(User, backref='reviews_received')
-    
+    public_id = UUIDField(null = True)
     rating = IntegerField() # 1 to 5
     comment = TextField(null=True)
     created_at = DateTimeField(default=datetime.datetime.now)
@@ -173,8 +177,6 @@ class Ticket(Model):
 
     class Meta:
         database = db
-        table_name = 'user_transactions'
-
 
 
 class SystemSetting(Model):
@@ -185,11 +187,15 @@ class SystemSetting(Model):
     class Meta:
         database = db
 
+import uuid
+from peewee import *
+
 def init_db():
     """Initialize database with automatic migration for new models and fields."""
-    db.connect()
+    if db.is_closed():
+        db.connect()
     
-    # Get all model classes
+    # List all your models here
     all_models = [Category, SystemSetting, Transaction, Review, User, Ticket, GalleryImage, JobRequest, Message]
     
     existing_tables = db.get_tables()
@@ -204,11 +210,9 @@ def init_db():
             try:
                 # 1. Get existing columns from SQLite
                 cursor = db.execute_sql(f'PRAGMA table_info("{table_name}")')
-                # column[1] is the name of the column in the actual database
                 existing_columns = [row[1] for row in cursor.fetchall()]
                 
                 # 2. Get columns defined in the Peewee model
-                # Use .column_name instead of .keys() to get 'user_id' instead of 'user'
                 model_columns = {field.column_name: field_name for field_name, field in model._meta.fields.items()}
                 
                 # 3. Find columns that need to be added
@@ -219,7 +223,7 @@ def init_db():
                         # Determine SQLite column type
                         if isinstance(field, (IntegerField, BooleanField)):
                             col_type = "INTEGER"
-                        elif isinstance(field, (CharField, TextField)):
+                        elif isinstance(field, (CharField, TextField, UUIDField)): # Added UUIDField support
                             col_type = "TEXT"
                         elif isinstance(field, DateTimeField):
                             col_type = "DATETIME"
@@ -230,22 +234,30 @@ def init_db():
                         else:
                             col_type = "TEXT"
                         
-                        # Build default clause
+                        # Build default clause safely
                         default_clause = "DEFAULT NULL"
                         if not field.null:
                             if field.default is not None:
                                 if callable(field.default):
-                                    # Specific check for common Peewee/Python callables
                                     if "now" in str(field.default):
                                         default_clause = "DEFAULT CURRENT_TIMESTAMP"
                                     else:
                                         try:
+                                            # Execute the callable (like uuid.uuid4)
                                             val = field.default()
-                                            default_clause = f"DEFAULT '{val}'" if isinstance(val, str) else f"DEFAULT {val}"
-                                        except: default_clause = ""
+                                            # FIX: Wrap string/uuid values in quotes to prevent syntax errors with dashes
+                                            if isinstance(val, (str, uuid.UUID)):
+                                                default_clause = f"DEFAULT '{str(val)}'"
+                                            else:
+                                                default_clause = f"DEFAULT {val}"
+                                        except: 
+                                            default_clause = ""
                                 else:
                                     val = field.default
-                                    default_clause = f"DEFAULT '{val}'" if isinstance(val, str) else f"DEFAULT {val}"
+                                    if isinstance(val, str):
+                                        default_clause = f"DEFAULT '{val}'"
+                                    else:
+                                        default_clause = f"DEFAULT {val}"
                             else:
                                 # Fallback defaults for NOT NULL columns
                                 if col_type == "INTEGER": default_clause = "DEFAULT 0"
@@ -253,25 +265,31 @@ def init_db():
 
                         # 4. Execute the Alter Table
                         try:
+                            # We add the column. Uniqueness is handled by an index later.
                             alter_sql = f'ALTER TABLE "{table_name}" ADD COLUMN "{col_db_name}" {col_type} {default_clause}'
                             db.execute_sql(alter_sql)
                             print(f"  → Added column '{col_db_name}' to '{table_name}'")
                         except Exception as e:
                             print(f"  ⚠ Failed to add '{col_db_name}': {e}")
 
-                # 5. Handle missing indexes for Foreign Keys
+                # 5. Handle missing indexes and Foreign Keys
                 cursor = db.execute_sql(f'PRAGMA index_list("{table_name}")')
                 existing_indexes = [row[1] for row in cursor.fetchall()]
                 
                 for field_name, field in model._meta.fields.items():
-                    if isinstance(field, ForeignKeyField):
+                    # Create index for Foreign Keys or fields explicitly marked as indexed/unique
+                    if isinstance(field, ForeignKeyField) or field.index or field.unique:
                         idx_name = f"{table_name}_{field.column_name}"
                         if idx_name not in existing_indexes:
-                            db.execute_sql(f'CREATE INDEX IF NOT EXISTS "{idx_name}" ON "{table_name}" ("{field.column_name}")')
-                            print(f"  → Created index '{idx_name}'")
+                            unique_str = "UNIQUE" if field.unique else ""
+                            db.execute_sql(f'CREATE {unique_str} INDEX IF NOT EXISTS "{idx_name}" ON "{table_name}" ("{field.column_name}")')
+                            print(f"  → Created {unique_str} index '{idx_name}'")
                             
             except Exception as e:
                 print(f"⚠ Migration error on {table_name}: {e}")
+
+    # 6. POST-MIGRATION DATA CLEANUP (Essential for UUIDs)
+    # If we just added public_id, everyone has the SAME default UUID. We must make them unique.
 
     if not db.is_closed():
         db.close()

@@ -1,6 +1,6 @@
 import os, random
 from datetime import datetime, timedelta,date
-from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, flash, session, current_app, abort
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
 from models import Category, User, GalleryImage,JobRequest, fn, Message, Transaction, db
@@ -86,7 +86,7 @@ def profile_setup():
         current_user.location = request.form.get('location')
         current_user.base_rate = request.form.get('base_rate')
         category = Category.select(Category.id).where(Category.name == request.form.get('category'))
-        print(f'--- {category}')
+        usr = User.update(category=category).where(User.id == current_user.id).execute()
         # ONLY save these specific fields to avoid the Category error
         current_user.save(only=[User.profile_pic, User.username, User.bio,User.location,User.phone,User.base_rate])
         
@@ -99,6 +99,7 @@ def profile_setup():
 
 @pro_bp.route('/portfolio', methods=['GET', 'POST'])
 @login_required
+@role_required('pro')
 def portfolio():
     if current_user.role != 'pro':
         return redirect(url_for('customer.explore'))
@@ -145,6 +146,7 @@ def delete_gallery_image(image_id):
     
 @pro_bp.route('/set-quote/<int:job_id>', methods=['POST'])
 @login_required
+@role_required('pro')
 def set_quote(job_id):
     job = JobRequest.get_by_id(job_id)
     amount = request.form.get('amount')
@@ -201,12 +203,12 @@ def customer_requests():
     
     return render_template('pro/customer_requests.html', requests=requests)
 
-@pro_bp.route('/customer/profile/<int:user_id>')
+@pro_bp.route('/customer/<string:user_id>')
 @login_required
 @role_required('pro')
 def view_customer_profile(user_id):
     # Fetch the customer, ensuring they actually have the 'customer' role
-    customer = User.get_or_none((User.id == user_id) & (User.role == 'customer'))
+    customer = User.get_or_none((User.public_id == user_id) & (User.role == 'customer'))
     
     if not customer:
         abort(404)
@@ -218,11 +220,13 @@ def view_customer_profile(user_id):
                            customer=customer, 
                            project_count=project_count)
 
-@pro_bp.route('/<int:user_id>')
+@pro_bp.route('/<string:user_id>')
 @role_required('pro')
 @login_required
 def view_profile(user_id):
-    pro = get_by_id_or_404(User,user_id)
+    pro = User.get_or_none(User.public_id == user_id)
+    if not pro:
+        abort(404)
     if pro.role != 'pro':
         abort(404)
         

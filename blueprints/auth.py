@@ -1,4 +1,4 @@
-import datetime
+import datetime, uuid
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from models import User
@@ -19,7 +19,7 @@ def register():
             flash('Email already registered', 'warning')
             return redirect(url_for('auth.register'))
 
-        new_user = User(username=username, email=email, role=role)
+        new_user = User(username=username, email=email, role=role, public_id = uuid.uuid4())
         new_user.set_password(password)
         new_user.save()
         if new_user.role == 'pro':
