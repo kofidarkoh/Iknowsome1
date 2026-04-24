@@ -166,7 +166,7 @@
                 <div class="fw-bold small">{{ current_user.username }}</div>
                 <div class="{% if current_user.full_verified %} text-warning {% else %}text-danger {% endif %}" style="font-size: 0.7rem;">Professional Mode</div>
             </div>
-            <a href="{{ url_for('pro.view_profile', user_id=current_user.id) }}">
+            <a href="{{ url_for('pro.view_profile', user_id=current_user.public_id) }}">
                 <img src="{% if current_user.profile_pic %}{{ url_for('static', filename='uploads/' + current_user.profile_pic) }}{% else %}https://ui-avatars.com/api/?name={{ current_user.username }}&background=fbbf24&color=000{% endif %}" class="rounded-circle border" width="40" height="40" style="object-fit: cover;">
             </a>
         </div>

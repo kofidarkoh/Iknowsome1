@@ -164,7 +164,7 @@
             <small class="text-muted" style="font-size: 0.7rem;">Starting from</small>
             <div class="text-dark fw-bold">₵{{ '{:,.0f}'.format(pro.base_rate) if pro.base_rate else '---' }}</div>
         </div>
-        <a href="{{ url_for('customer.view_pro_profile', pro_id=pro.id) }}" 
+        <a href="{{ url_for('customer.view_pro_profile', pro_id=pro.public_id) }}" 
            class="btn btn-sm btn-warning rounded-pill px-3 fw-semibold">
             View <i class="bi bi-arrow-right ms-1"></i>
         </a>

@@ -99,7 +99,7 @@
             </button>
             <div class="collapse navbar-collapse" id="navContent">
                 <ul class="navbar-nav ms-auto align-items-center">
-                    {% if current_user.is_authenticated %}
+                {% if current_user.is_authenticated %}
                     {% if current_user.role == 'pro' %}
                     <li class="nav-item me-lg-3">
                         <span class="text-secondary small d-flex align-items-center gap-2">
@@ -123,8 +123,6 @@
                             {% endif %}
                         </a>
                     </li>
-                    {% endif %}
-
                     <li class="nav-item">
                         <a class="nav-link px-lg-3" href="{{ url_for('customer.wallet') }}">
                             <i class="bi bi-wallet2"></i> Wallet
@@ -154,6 +152,7 @@
                     </li>
                     {% endif %}
                 </ul>
+                {% endif %}
             </div>
         </div>
     </nav>

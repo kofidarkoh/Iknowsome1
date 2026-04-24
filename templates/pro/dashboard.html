@@ -197,7 +197,7 @@
                         {% endif %}
                     </td>
                     <td class="text-end">
-                        <a href="{{ url_for('chat.view_chat', job_id=req.id) }}" class="btn btn-dark rounded-3 btn-sm fw-bold px-3">Manage</a>
+                        <a href="{{ url_for('chat.view_chat', job_id=req.public_id) }}" class="btn btn-dark rounded-3 btn-sm fw-bold px-3">Manage</a>
                     </td>
                 </tr>
                 {% else %}

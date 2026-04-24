@@ -34,7 +34,7 @@
                                     {% endif %}
                                 </div>
                                 <div class="ms-3">
-                                   <a href="{{ url_for('pro.view_customer_profile', user_id = req.customer.id) }}" class="nav-link"> <h6 class="fw-bold mb-0 text-dark">{{ req.customer.username }}</h6></a>
+                                   <a href="{{ url_for('pro.view_customer_profile', user_id = req.customer.public_id) }}" class="nav-link"> <h6 class="fw-bold mb-0 text-dark">{{ req.customer.username }}</h6></a>
                                     <small class="text-muted x-small uppercase fw-bold">{{ req.created_at.strftime('%d %b, %H:%M') }}</small>
                                 </div>
                             </div>
